@@ -57,7 +57,10 @@ pub fn start(app: AppHandle, dl: Downloads) {
 fn header_value(req: &Request, name: &str) -> Option<String> {
     req.headers()
         .iter()
-        .find(|h| h.field.as_str().as_str().eq_ignore_ascii_case(name))
+        .find(|h| {
+            let field = h.field.as_str().as_ref();
+            field.eq_ignore_ascii_case(name)
+        })
         .map(|h| h.value.to_string())
 }
 
