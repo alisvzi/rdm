@@ -1,0 +1,39 @@
+name: Build Windows app
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main, master]
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - uses: Swatinem/rust-cache@v2
+
+      - name: Build command-line version
+        run: cargo build --release -p rdm-cli
+
+      - name: Install Tauri CLI
+        run: cargo install tauri-cli --version "^2" --locked
+
+      - name: Build desktop app
+        run: cargo tauri build --no-bundle
+
+      - name: Collect files
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory dist | Out-Null
+          Copy-Item target/release/rdm-gui.exe dist/
+          Copy-Item target/release/rdm.exe dist/
+          Copy-Item -Recurse extension dist/extension
+          Copy-Item -Recurse extension-firefox dist/extension-firefox
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: rdm-windows
+          path: dist

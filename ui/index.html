@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>RDM</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="toolbar">
+  <button id="btn-add" class="btn primary"><i data-icon="plus"></i><span data-i18n="add"></span></button>
+  <span class="sep"></span>
+  <button id="btn-resume" class="btn"><i data-icon="play"></i><span data-i18n="resume"></span></button>
+  <button id="btn-pause" class="btn"><i data-icon="pause"></i><span data-i18n="pause"></span></button>
+  <button id="btn-delete" class="btn"><i data-icon="trash"></i><span data-i18n="delete"></span></button>
+  <span class="sep"></span>
+  <button id="btn-resume-all" class="btn"><i data-icon="play"></i><span data-i18n="resumeAll"></span></button>
+  <button id="btn-pause-all" class="btn"><i data-icon="pause"></i><span data-i18n="pauseAll"></span></button>
+  <button id="btn-clear" class="btn"><i data-icon="check"></i><span data-i18n="clearDone"></span></button>
+  <span class="grow"></span>
+  <button id="btn-settings" class="btn"><i data-icon="sliders"></i><span data-i18n="settings"></span></button>
+</header>
+
+<div class="main">
+  <nav id="side" class="sidebar"></nav>
+
+  <section class="list">
+    <table>
+      <thead>
+        <tr>
+          <th class="c-name" data-i18n="colName"></th>
+          <th class="c-size" data-i18n="colSize"></th>
+          <th class="c-prog" data-i18n="colProgress"></th>
+          <th class="c-speed" data-i18n="colSpeed"></th>
+          <th class="c-eta" data-i18n="colEta"></th>
+          <th class="c-status" data-i18n="colStatus"></th>
+          <th class="c-added" data-i18n="colAdded"></th>
+          <th class="c-act"></th>
+        </tr>
+      </thead>
+      <tbody id="rows"></tbody>
+    </table>
+    <div id="empty" class="empty" data-i18n="empty"></div>
+  </section>
+</div>
+
+<footer class="statusbar">
+  <span><span data-i18n="sbSpeed"></span>: <b id="sb-speed" class="num">0 B/s</b></span>
+  <span><span data-i18n="sbActive"></span>: <b id="sb-active" class="num">0</b></span>
+  <span><span data-i18n="sbTotal"></span>: <b id="sb-total" class="num">0</b></span>
+</footer>
+
+<div id="banner" class="banner" hidden>
+  <span id="banner-text"></span>
+  <button id="banner-cancel" class="btn danger" data-i18n="cancel"></button>
+</div>
+
+<div id="toast" class="toast" hidden></div>
+
+<!-- Add dialog -->
+<dialog id="dlg-add">
+  <h2 data-i18n="addTitle"></h2>
+  <label for="add-urls" data-i18n="urlsLabel"></label>
+  <textarea id="add-urls" rows="6" spellcheck="false" dir="ltr" placeholder="https://example.com/file.zip"></textarea>
+
+  <label for="add-dir" data-i18n="destLabel"></label>
+  <div class="row">
+    <input id="add-dir" type="text" dir="ltr" spellcheck="false">
+    <button id="add-browse" class="btn" data-i18n="browse"></button>
+  </div>
+
+  <label class="check"><input id="add-start" type="checkbox" checked> <span data-i18n="startNow"></span></label>
+
+  <pre id="add-error" class="error" hidden></pre>
+
+  <div class="actions">
+    <button id="add-cancel" class="btn" data-i18n="cancel"></button>
+    <button id="add-ok" class="btn primary" data-i18n="addBtn"></button>
+  </div>
+</dialog>
+
+<!-- Settings dialog -->
+<dialog id="dlg-settings">
+  <h2 data-i18n="settingsTitle"></h2>
+
+  <label for="set-dir" data-i18n="setDir"></label>
+  <div class="row">
+    <input id="set-dir" type="text" dir="ltr" spellcheck="false">
+    <button id="set-browse" class="btn" data-i18n="browse"></button>
+  </div>
+
+  <div class="grid2">
+    <div>
+      <label for="set-conn" data-i18n="setConn"></label>
+      <input id="set-conn" type="number" min="1" max="64">
+    </div>
+    <div>
+      <label for="set-conc" data-i18n="setConc"></label>
+      <input id="set-conc" type="number" min="1" max="16">
+    </div>
+    <div>
+      <label for="set-limit" data-i18n="setLimit"></label>
+      <input id="set-limit" type="number" min="0">
+    </div>
+    <div>
+      <label for="set-retries" data-i18n="setRetries"></label>
+      <input id="set-retries" type="number" min="0" max="50">
+    </div>
+  </div>
+
+  <label class="check"><input id="set-cat" type="checkbox"> <span data-i18n="setCategorize"></span></label>
+
+  <label class="check"><input id="set-tray" type="checkbox"> <span data-i18n="setTray"></span></label>
+
+  <h3 data-i18n="schedTitle"></h3>
+  <label class="check"><input id="set-sched" type="checkbox"> <span data-i18n="schedEnable"></span></label>
+  <div class="grid2">
+    <div>
+      <label for="set-sstart" data-i18n="schedStart"></label>
+      <input id="set-sstart" type="time">
+    </div>
+    <div>
+      <label for="set-sstop" data-i18n="schedStop"></label>
+      <input id="set-sstop" type="time">
+    </div>
+  </div>
+  <label for="set-after" data-i18n="schedAfter"></label>
+  <select id="set-after">
+    <option value="none" data-i18n="afterNone"></option>
+    <option value="shutdown" data-i18n="afterShutdown"></option>
+    <option value="hibernate" data-i18n="afterHibernate"></option>
+  </select>
+
+  <h3 data-i18n="intTitle"></h3>
+  <p class="hint" data-i18n="intHint"></p>
+  <label for="int-token" data-i18n="intToken"></label>
+  <div class="row">
+    <input id="int-token" type="text" dir="ltr" readonly>
+    <button id="int-copy" class="btn" data-i18n="copy"></button>
+  </div>
+  <p class="hint"><span data-i18n="intPort"></span>: <b id="int-port" class="num"></b> &mdash; <span id="int-status"></span></p>
+
+  <label for="set-lang" data-i18n="setLang"></label>
+  <select id="set-lang">
+    <option value="fa">فارسی</option>
+    <option value="en">English</option>
+  </select>
+
+  <pre id="set-error" class="error" hidden></pre>
+
+  <div class="actions">
+    <button id="set-cancel" class="btn" data-i18n="cancel"></button>
+    <button id="set-ok" class="btn primary" data-i18n="save"></button>
+  </div>
+</dialog>
+
+<!-- Delete dialog -->
+<dialog id="dlg-delete">
+  <h2 data-i18n="delTitle"></h2>
+  <p id="del-text"></p>
+  <label class="check"><input id="del-file" type="checkbox"> <span data-i18n="delFile"></span></label>
+  <div class="actions">
+    <button id="del-cancel" class="btn" data-i18n="cancel"></button>
+    <button id="del-ok" class="btn danger" data-i18n="delete"></button>
+  </div>
+</dialog>
+
+<script src="app.js"></script>
+</body>
+</html>

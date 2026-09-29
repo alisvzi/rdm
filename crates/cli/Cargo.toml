@@ -1,0 +1,16 @@
+[package]
+name = "rdm-cli"
+version = "0.3.0"
+edition = "2021"
+description = "Command-line front-end for the rdm download engine"
+
+[[bin]]
+name = "rdm"
+path = "src/main.rs"
+
+[dependencies]
+rdm-core = { path = "../core" }
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "time", "signal"] }
+clap = { version = "4", features = ["derive"] }
+indicatif = "0.17"
+anyhow = "1"
