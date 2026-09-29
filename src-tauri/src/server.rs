@@ -57,8 +57,8 @@ pub fn start(app: AppHandle, dl: Downloads) {
 fn header_value(req: &Request, name: &str) -> Option<String> {
     req.headers()
         .iter()
-        .find(|h| h.field.as_str().eq_ignore_ascii_case(name))
-        .map(|h| h.value.as_str().to_string())
+        .find(|h| h.field.as_str().as_str().eq_ignore_ascii_case(name))
+        .map(|h| h.value.to_string())
 }
 
 fn reply(status: u16, body: Option<serde_json::Value>, origin: Option<&str>) -> Resp {
