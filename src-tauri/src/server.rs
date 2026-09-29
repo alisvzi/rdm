@@ -57,7 +57,7 @@ pub fn start(app: AppHandle, dl: Downloads) {
 fn header_value(req: &Request, name: &str) -> Option<String> {
     req.headers()
         .iter()
-        .find(|h| h.field.equiv(name))
+        .find(|h| h.field.as_str().eq_ignore_ascii_case(name))
         .map(|h| h.value.as_str().to_string())
 }
 
@@ -67,7 +67,10 @@ fn reply(status: u16, body: Option<serde_json::Value>, origin: Option<&str>) -> 
     let headers: [(&str, String); 5] = [
         ("Content-Type", "application/json".into()),
         ("Access-Control-Allow-Origin", origin.unwrap_or("*").into()),
-        ("Access-Control-Allow-Headers", "Content-Type, X-RDM-Token".into()),
+        (
+            "Access-Control-Allow-Headers",
+            "Content-Type, X-RDM-Token".into(),
+        ),
         ("Access-Control-Allow-Methods", "GET, POST, OPTIONS".into()),
         ("Vary", "Origin".into()),
     ];
@@ -113,12 +116,20 @@ fn handle(mut req: Request, dl: Downloads, app: AppHandle) {
     }
 
     if !host_ok(header_value(&req, "Host").as_deref()) {
-        let _ = req.respond(reply(403, Some(json!({"ok": false, "error": "bad host"})), o));
+        let _ = req.respond(reply(
+            403,
+            Some(json!({"ok": false, "error": "bad host"})),
+            o,
+        ));
         return;
     }
     if let Some(origin) = o {
         if !origin_ok(origin) {
-            let _ = req.respond(reply(403, Some(json!({"ok": false, "error": "forbidden origin"})), o));
+            let _ = req.respond(reply(
+                403,
+                Some(json!({"ok": false, "error": "forbidden origin"})),
+                o,
+            ));
             return;
         }
     }
@@ -126,7 +137,11 @@ fn handle(mut req: Request, dl: Downloads, app: AppHandle) {
     let token = header_value(&req, "X-RDM-Token").unwrap_or_default();
     let expected = dl.settings().api_token;
     if expected.is_empty() || !constant_eq(token.as_bytes(), expected.as_bytes()) {
-        let _ = req.respond(reply(401, Some(json!({"ok": false, "error": "wrong token"})), o));
+        let _ = req.respond(reply(
+            401,
+            Some(json!({"ok": false, "error": "wrong token"})),
+            o,
+        ));
         return;
     }
 
@@ -142,7 +157,11 @@ fn handle(mut req: Request, dl: Downloads, app: AppHandle) {
 
         (Method::Post, "/add") => {
             let mut body = String::new();
-            let read_ok = req.as_reader().take(1 << 20).read_to_string(&mut body).is_ok();
+            let read_ok = req
+                .as_reader()
+                .take(1 << 20)
+                .read_to_string(&mut body)
+                .is_ok();
             match (read_ok, serde_json::from_str::<AddBody>(&body)) {
                 (true, Ok(b)) => {
                     let mut headers: Vec<(String, String)> = Vec::new();
