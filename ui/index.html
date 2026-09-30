@@ -1,55 +1,92 @@
 <!doctype html>
-<html lang="fa" dir="rtl">
+<html lang="fa" dir="rtl" style="background:#060a11">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
   <title>RDM</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<header class="toolbar">
-  <button id="btn-add" class="btn primary"><i data-icon="plus"></i><span data-i18n="add"></span></button>
-  <span class="sep"></span>
-  <button id="btn-resume" class="btn"><i data-icon="play"></i><span data-i18n="resume"></span></button>
-  <button id="btn-pause" class="btn"><i data-icon="pause"></i><span data-i18n="pause"></span></button>
-  <button id="btn-delete" class="btn"><i data-icon="trash"></i><span data-i18n="delete"></span></button>
-  <span class="sep"></span>
-  <button id="btn-resume-all" class="btn"><i data-icon="play"></i><span data-i18n="resumeAll"></span></button>
-  <button id="btn-pause-all" class="btn"><i data-icon="pause"></i><span data-i18n="pauseAll"></span></button>
-  <button id="btn-clear" class="btn"><i data-icon="check"></i><span data-i18n="clearDone"></span></button>
-  <span class="grow"></span>
-  <button id="btn-settings" class="btn"><i data-icon="sliders"></i><span data-i18n="settings"></span></button>
-</header>
+<div class="ambient" aria-hidden="true"><i class="blob b1"></i><i class="blob b2"></i><i class="blob b3"></i></div>
 
-<div class="main">
-  <nav id="side" class="sidebar"></nav>
+<div class="app">
 
-  <section class="list">
-    <table>
-      <thead>
-        <tr>
-          <th class="c-name" data-i18n="colName"></th>
-          <th class="c-size" data-i18n="colSize"></th>
-          <th class="c-prog" data-i18n="colProgress"></th>
-          <th class="c-speed" data-i18n="colSpeed"></th>
-          <th class="c-eta" data-i18n="colEta"></th>
-          <th class="c-status" data-i18n="colStatus"></th>
-          <th class="c-added" data-i18n="colAdded"></th>
-          <th class="c-act"></th>
-        </tr>
-      </thead>
-      <tbody id="rows"></tbody>
-    </table>
-    <div id="empty" class="empty" data-i18n="empty"></div>
-  </section>
+  <header class="toolbar glass">
+    <div class="brand"><i data-icon="logo"></i><b>RDM</b></div>
+    <span class="sep"></span>
+    <button id="btn-add" class="tbtn primary"><i data-icon="plus"></i><span data-i18n="add"></span></button>
+    <button id="btn-resume" class="tbtn"><i data-icon="play"></i><span data-i18n="resume"></span></button>
+    <button id="btn-pause" class="tbtn"><i data-icon="pause"></i><span data-i18n="pause"></span></button>
+    <span class="sep"></span>
+    <button id="btn-resume-all" class="tbtn"><i data-icon="playall"></i><span data-i18n="resumeAll"></span></button>
+    <button id="btn-pause-all" class="tbtn"><i data-icon="pauseall"></i><span data-i18n="pauseAll"></span></button>
+    <span class="sep"></span>
+    <button id="btn-delete" class="tbtn"><i data-icon="trash"></i><span data-i18n="delete"></span></button>
+    <button id="btn-clear" class="tbtn"><i data-icon="check"></i><span data-i18n="clearDone"></span></button>
+    <span class="grow"></span>
+    <button id="btn-settings" class="tbtn"><i data-icon="sliders"></i><span data-i18n="settings"></span></button>
+  </header>
+
+  <div class="body">
+    <nav id="side" class="sidebar glass"></nav>
+
+    <main class="center">
+      <section class="list glass">
+        <table>
+          <thead>
+            <tr>
+              <th class="c-name" data-i18n="colName"></th>
+              <th class="c-size" data-i18n="colSize"></th>
+              <th class="c-prog" data-i18n="colProgress"></th>
+              <th class="c-speed" data-i18n="colSpeed"></th>
+              <th class="c-eta" data-i18n="colEta"></th>
+              <th class="c-status" data-i18n="colStatus"></th>
+              <th class="c-added" data-i18n="colAdded"></th>
+              <th class="c-act"></th>
+            </tr>
+          </thead>
+          <tbody id="rows"></tbody>
+        </table>
+        <div id="empty" class="empty">
+          <i data-icon="logo" class="big"></i>
+          <p data-i18n="empty"></p>
+        </div>
+      </section>
+
+      <section id="detail" class="detail glass" hidden>
+        <div class="d-head">
+          <b id="d-name" class="d-name"></b>
+          <span id="d-status" class="pill"></span>
+        </div>
+        <div class="seg-title" data-i18n="dSegments"></div>
+        <div id="seg" class="seg-map"></div>
+        <div class="d-grid">
+          <div><span data-i18n="dUrl"></span><b id="d-url" class="ltr"></b></div>
+          <div><span data-i18n="dPath"></span><b id="d-path" class="ltr"></b></div>
+          <div><span data-i18n="colSize"></span><b id="d-size" class="num"></b></div>
+          <div><span data-i18n="dDone"></span><b id="d-done" class="num"></b></div>
+          <div><span data-i18n="colSpeed"></span><b id="d-speed" class="num"></b></div>
+          <div><span data-i18n="colEta"></span><b id="d-eta" class="num"></b></div>
+          <div><span data-i18n="dResume"></span><b id="d-resume"></b></div>
+          <div><span data-i18n="colAdded"></span><b id="d-added" class="num"></b></div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <footer class="statusbar glass">
+    <span><span data-i18n="sbSpeed"></span>: <b id="sb-speed" class="num">0 B/s</b></span>
+    <svg id="spark" class="spark" viewBox="0 0 120 24" preserveAspectRatio="none" aria-hidden="true">
+      <path id="spark-area" d=""/>
+      <path id="spark-line" d=""/>
+    </svg>
+    <span class="grow"></span>
+    <span><span data-i18n="sbActive"></span>: <b id="sb-active" class="num">0</b></span>
+    <span><span data-i18n="sbTotal"></span>: <b id="sb-total" class="num">0</b></span>
+  </footer>
 </div>
-
-<footer class="statusbar">
-  <span><span data-i18n="sbSpeed"></span>: <b id="sb-speed" class="num">0 B/s</b></span>
-  <span><span data-i18n="sbActive"></span>: <b id="sb-active" class="num">0</b></span>
-  <span><span data-i18n="sbTotal"></span>: <b id="sb-total" class="num">0</b></span>
-</footer>
 
 <div id="banner" class="banner" hidden>
   <span id="banner-text"></span>
@@ -59,7 +96,7 @@
 <div id="toast" class="toast" hidden></div>
 
 <!-- Add dialog -->
-<dialog id="dlg-add">
+<dialog id="dlg-add" class="glass-dlg">
   <h2 data-i18n="addTitle"></h2>
   <label for="add-urls" data-i18n="urlsLabel"></label>
   <textarea id="add-urls" rows="6" spellcheck="false" dir="ltr" placeholder="https://example.com/file.zip"></textarea>
@@ -81,7 +118,7 @@
 </dialog>
 
 <!-- Settings dialog -->
-<dialog id="dlg-settings">
+<dialog id="dlg-settings" class="glass-dlg">
   <h2 data-i18n="settingsTitle"></h2>
 
   <label for="set-dir" data-i18n="setDir"></label>
@@ -89,6 +126,8 @@
     <input id="set-dir" type="text" dir="ltr" spellcheck="false">
     <button id="set-browse" class="btn" data-i18n="browse"></button>
   </div>
+  <p class="hint"><span data-i18n="lastDirLbl"></span>: <b id="last-dir" class="ltr"></b>
+    <button id="last-clear" type="button" class="linkbtn" data-i18n="clear"></button></p>
 
   <div class="grid2">
     <div>
@@ -110,7 +149,7 @@
   </div>
 
   <label class="check"><input id="set-cat" type="checkbox"> <span data-i18n="setCategorize"></span></label>
-
+  <label class="check"><input id="set-confirm" type="checkbox"> <span data-i18n="setConfirm"></span></label>
   <label class="check"><input id="set-tray" type="checkbox"> <span data-i18n="setTray"></span></label>
 
   <h3 data-i18n="schedTitle"></h3>
@@ -156,7 +195,7 @@
 </dialog>
 
 <!-- Delete dialog -->
-<dialog id="dlg-delete">
+<dialog id="dlg-delete" class="glass-dlg">
   <h2 data-i18n="delTitle"></h2>
   <p id="del-text"></p>
   <label class="check"><input id="del-file" type="checkbox"> <span data-i18n="delFile"></span></label>

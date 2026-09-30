@@ -47,7 +47,7 @@ async function sendToRdm({ url, referrer, startNow = true }) {
   const cookies = await cookiesFor(url);
   return rdmFetch('/add', {
     method: 'POST',
-    body: JSON.stringify({ url, referrer, cookies, userAgent: navigator.userAgent, startNow }),
+    body: JSON.stringify({ url, referrer, cookies, userAgent: navigator.userAgent, startNow, confirm: true }),
   });
 }
 

@@ -12,10 +12,12 @@
       {
         "label": "main",
         "title": "RDM Download Manager",
-        "width": 1080,
-        "height": 660,
-        "minWidth": 780,
-        "minHeight": 440
+        "width": 1200,
+        "height": 740,
+        "minWidth": 900,
+        "minHeight": 520,
+        "center": true,
+        "theme": "Dark"
       }
     ],
     "security": {

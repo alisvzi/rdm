@@ -3,10 +3,12 @@
 mod server;
 
 use chrono::{Datelike, Local, Timelike};
-use rdm_core::manager::{ItemView, Manager as Downloads, Settings, Status};
+use rdm_core::manager::{ItemView, Manager as Downloads, Prepared, Settings, Status};
+use std::collections::HashMap;
 use std::path::Path;
 use std::process::Command;
-use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
+use std::sync::Mutex;
 use std::time::Duration;
 use tauri::menu::{Menu, MenuItem};
 use tauri::tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent};
@@ -21,6 +23,63 @@ fn err(e: anyhow::Error) -> String {
 /// Sends the current list to the UI right away (after a user action).
 fn notify(app: &AppHandle, dl: &Downloads) {
     let _ = app.emit("downloads", dl.snapshot());
+}
+
+/// A browser download waiting for the user's decision in the confirmation window.
+#[derive(Clone)]
+pub struct Pending {
+    pub url: String,
+    pub headers: Vec<(String, String)>,
+    pub prepared: Prepared,
+}
+
+#[derive(Default)]
+pub struct PendingStore {
+    map: Mutex<HashMap<u64, Pending>>,
+    next: AtomicU64,
+}
+
+impl PendingStore {
+    pub fn insert(&self, p: Pending) -> u64 {
+        let id = self.next.fetch_add(1, Ordering::Relaxed) + 1;
+        self.map.lock().unwrap().insert(id, p);
+        id
+    }
+    pub fn get(&self, id: u64) -> Option<Pending> {
+        self.map.lock().unwrap().get(&id).cloned()
+    }
+    pub fn remove(&self, id: u64) -> Option<Pending> {
+        self.map.lock().unwrap().remove(&id)
+    }
+}
+
+/// Opens the small "New download" window (like IDM's file-info dialog).
+pub fn open_confirm_window(app: &AppHandle, id: u64) {
+    let label = format!("confirm-{id}");
+    let result = tauri::WebviewWindowBuilder::new(
+        app,
+        label.clone(),
+        tauri::WebviewUrl::App("confirm.html".into()),
+    )
+    .title("RDM")
+    .inner_size(640.0, 520.0)
+    .resizable(false)
+    .maximizable(false)
+    .minimizable(false)
+    .always_on_top(true)
+    .center()
+    .theme(Some(tauri::Theme::Dark))
+    .build();
+    if let Err(e) = result {
+        eprintln!("cannot open the confirmation window: {e}");
+    }
+}
+
+fn close_confirm(app: &AppHandle, id: u64) {
+    let label = format!("confirm-{id}");
+    if let Some(w) = app.get_webview_window(&label) {
+        let _ = w.close();
+    }
 }
 
 fn show_main(app: &AppHandle) {
@@ -107,6 +166,61 @@ async fn get_settings(dl: State<'_, Downloads>) -> Res<Settings> {
 #[tauri::command]
 async fn save_settings(app: AppHandle, dl: State<'_, Downloads>, settings: Settings) -> Res<()> {
     dl.set_settings(settings).map_err(err)?;
+    notify(&app, &dl);
+    Ok(())
+}
+
+#[tauri::command]
+async fn get_pending(store: State<'_, PendingStore>, id: u64) -> Res<Prepared> {
+    store
+        .get(id)
+        .map(|p| p.prepared)
+        .ok_or_else(|| "this request is no longer valid".to_string())
+}
+
+#[tauri::command]
+#[allow(clippy::too_many_arguments)]
+async fn confirm_pending(
+    app: AppHandle,
+    dl: State<'_, Downloads>,
+    store: State<'_, PendingStore>,
+    id: u64,
+    folder: String,
+    filename: String,
+    start: bool,
+    dont_ask: bool,
+) -> Res<()> {
+    let p = store
+        .get(id)
+        .ok_or_else(|| "this request is no longer valid".to_string())?;
+    dl.add_full(
+        &p.url,
+        Some(folder.as_str()),
+        Some(filename.as_str()),
+        start,
+        p.headers.clone(),
+    )
+    .await
+    .map_err(err)?;
+    if dont_ask {
+        dl.set_confirm_downloads(false);
+    }
+    store.remove(id);
+    close_confirm(&app, id);
+    notify(&app, &dl);
+    Ok(())
+}
+
+#[tauri::command]
+async fn cancel_pending(app: AppHandle, store: State<'_, PendingStore>, id: u64) -> Res<()> {
+    store.remove(id);
+    close_confirm(&app, id);
+    Ok(())
+}
+
+#[tauri::command]
+async fn clear_last_dir(app: AppHandle, dl: State<'_, Downloads>) -> Res<()> {
+    dl.clear_last_dir();
     notify(&app, &dl);
     Ok(())
 }
@@ -235,18 +349,31 @@ fn main() {
             show_main(app);
         }))
         .plugin(tauri_plugin_dialog::init())
-        .on_window_event(|window, event| {
-            if let WindowEvent::CloseRequested { api, .. } = event {
-                let to_tray = window
-                    .app_handle()
-                    .state::<Downloads>()
-                    .settings()
-                    .close_to_tray;
-                if to_tray {
-                    let _ = window.hide();
-                    api.prevent_close();
+        .on_window_event(|window, event| match event {
+            WindowEvent::CloseRequested { api, .. } => {
+                if window.label() == "main" {
+                    let to_tray = window
+                        .app_handle()
+                        .state::<Downloads>()
+                        .settings()
+                        .close_to_tray;
+                    if to_tray {
+                        let _ = window.hide();
+                        api.prevent_close();
+                    }
                 }
             }
+            WindowEvent::Destroyed => {
+                // Closing the confirmation window with X = cancel.
+                if let Some(id) = window
+                    .label()
+                    .strip_prefix("confirm-")
+                    .and_then(|s| s.parse::<u64>().ok())
+                {
+                    let _ = window.app_handle().state::<PendingStore>().remove(id);
+                }
+            }
+            _ => {}
         })
         .setup(|app| {
             let data_dir = app.path().app_data_dir()?;
@@ -257,6 +384,7 @@ fn main() {
             let manager = Downloads::new(data_dir, default_dir)?;
             app.manage(manager.clone());
             app.manage(server::ApiStatus(AtomicBool::new(false)));
+            app.manage(PendingStore::default());
 
             // Browser-extension API.
             server::start(app.handle().clone(), manager.clone());
@@ -366,6 +494,10 @@ fn main() {
             get_settings,
             save_settings,
             get_integration,
+            get_pending,
+            confirm_pending,
+            cancel_pending,
+            clear_last_dir,
             cancel_shutdown,
             open_file,
             open_folder

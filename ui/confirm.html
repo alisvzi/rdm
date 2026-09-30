@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="fa" dir="rtl" style="background:#060a11">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>RDM</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="popup">
+
+<div class="ambient" aria-hidden="true"><i class="blob b1"></i><i class="blob b2"></i></div>
+
+<div class="pop">
+  <div class="pop-head">
+    <svg class="i" viewBox="0 0 24 24"><path d="M12 3v11m0 0l-4-4m4 4l4-4"/><path d="M4 15v3a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-3"/></svg>
+    <div>
+      <h1 id="t-title"></h1>
+      <small id="t-sub"></small>
+    </div>
+  </div>
+
+  <div class="card glass">
+    <label id="t-url"></label>
+    <div id="url" class="url"></div>
+
+    <label id="t-name" for="name"></label>
+    <input id="name" type="text" dir="auto" spellcheck="false">
+
+    <label id="t-folder" for="folder"></label>
+    <div class="row">
+      <input id="folder" type="text" dir="ltr" spellcheck="false">
+      <button id="browse" class="btn" type="button"></button>
+      <button id="reset" class="btn" type="button"></button>
+    </div>
+
+    <div class="facts">
+      <span class="fact"><span id="t-size"></span>: <b id="size" class="num"></b></span>
+      <span class="fact"><span id="t-resume"></span>: <b id="resume"></b></span>
+      <span class="fact"><span id="t-cat"></span>: <b id="cat"></b></span>
+    </div>
+
+    <label class="check"><input id="dont" type="checkbox"> <span id="t-dont"></span></label>
+  </div>
+
+  <div id="err" class="error" hidden></div>
+
+  <div class="actions">
+    <button id="start" class="btn primary" type="button"></button>
+    <button id="later" class="btn" type="button"></button>
+    <button id="cancel" class="btn" type="button"></button>
+  </div>
+</div>
+
+<script src="confirm.js"></script>
+</body>
+</html>

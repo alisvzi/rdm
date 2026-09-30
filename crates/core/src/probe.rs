@@ -71,7 +71,7 @@ pub async fn probe(client: &Client, url: &str, headers: &header::HeaderMap) -> R
         .and_then(|v| v.to_str().ok())
         .and_then(filename_from_disposition)
         .or_else(|| filename_from_url(&final_url))
-        .map(|n| sanitize(&n))
+        .map(|n| sanitize_filename(&n))
         .filter(|n| !n.is_empty())
         .unwrap_or_else(|| "download.bin".to_string());
 
@@ -111,7 +111,7 @@ fn filename_from_url(url: &Url) -> Option<String> {
 }
 
 /// Removes path parts and characters Windows does not allow in file names.
-fn sanitize(name: &str) -> String {
+pub fn sanitize_filename(name: &str) -> String {
     let base = name
         .rsplit(|c: char| c == '/' || c == '\\')
         .next()

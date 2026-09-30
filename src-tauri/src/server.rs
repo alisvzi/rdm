@@ -30,6 +30,8 @@ struct AddBody {
     user_agent: Option<String>,
     #[serde(default = "yes")]
     start_now: bool,
+    /// The browser extension asks for the IDM-style confirmation window.
+    confirm: Option<bool>,
 }
 
 fn yes() -> bool {
@@ -155,29 +157,52 @@ fn handle(mut req: Request, dl: Downloads, app: AppHandle) {
                     if let Some(u) = b.user_agent.filter(|u| !u.is_empty()) {
                         headers.push(("User-Agent".to_string(), u));
                     }
-                    let res = tauri::async_runtime::block_on(dl.add_with(
-                        &b.url,
-                        None,
-                        b.start_now,
-                        headers,
-                    ));
-                    match res {
-                        Ok(id) => {
-                            let _ = app.emit("downloads", dl.snapshot());
-                            if let Some(p) = dl.path_of(id) {
-                                let name = std::path::Path::new(&p)
-                                    .file_name()
-                                    .map(|n| n.to_string_lossy().to_string())
-                                    .unwrap_or_default();
-                                let _ = app.emit("added", name);
+                    let wants_confirm =
+                        b.confirm.unwrap_or(false) && dl.settings().confirm_downloads;
+
+                    if wants_confirm {
+                        // IDM-style: check the link, then let the user decide in a popup.
+                        match tauri::async_runtime::block_on(dl.prepare(&b.url, &headers)) {
+                            Ok(prepared) => {
+                                let id = app.state::<crate::PendingStore>().insert(crate::Pending {
+                                    url: b.url.clone(),
+                                    headers,
+                                    prepared,
+                                });
+                                crate::open_confirm_window(&app, id);
+                                reply(200, Some(json!({"ok": true, "pending": id})), o)
                             }
-                            reply(200, Some(json!({"ok": true, "id": id})), o)
+                            Err(e) => reply(
+                                400,
+                                Some(json!({"ok": false, "error": format!("{:#}", e)})),
+                                o,
+                            ),
                         }
-                        Err(e) => reply(
-                            400,
-                            Some(json!({"ok": false, "error": format!("{:#}", e)})),
-                            o,
-                        ),
+                    } else {
+                        let res = tauri::async_runtime::block_on(dl.add_with(
+                            &b.url,
+                            None,
+                            b.start_now,
+                            headers,
+                        ));
+                        match res {
+                            Ok(id) => {
+                                let _ = app.emit("downloads", dl.snapshot());
+                                if let Some(p) = dl.path_of(id) {
+                                    let name = std::path::Path::new(&p)
+                                        .file_name()
+                                        .map(|n| n.to_string_lossy().to_string())
+                                        .unwrap_or_default();
+                                    let _ = app.emit("added", name);
+                                }
+                                reply(200, Some(json!({"ok": true, "id": id})), o)
+                            }
+                            Err(e) => reply(
+                                400,
+                                Some(json!({"ok": false, "error": format!("{:#}", e)})),
+                                o,
+                            ),
+                        }
                     }
                 }
                 _ => reply(400, Some(json!({"ok": false, "error": "bad request"})), o),

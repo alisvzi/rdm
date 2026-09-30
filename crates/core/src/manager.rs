@@ -51,13 +51,17 @@ pub struct Settings {
     pub after_finish: String,
     /// Secret shared with the browser extension. Generated automatically.
     pub api_token: String,
+    /// Folder chosen last time in the confirmation dialog ("" = use the category folders).
+    pub last_dir: String,
+    /// Show an IDM-style confirmation window before every browser download.
+    pub confirm_downloads: bool,
 }
 
 impl Default for Settings {
     fn default() -> Self {
         Self {
             download_dir: String::new(),
-            connections: 16,
+            connections: 8,
             max_concurrent: 3,
             speed_limit_kbps: 0,
             retries: 8,
@@ -68,6 +72,8 @@ impl Default for Settings {
             schedule_stop: String::new(),
             after_finish: "none".to_string(),
             api_token: String::new(),
+            last_dir: String::new(),
+            confirm_downloads: true,
         }
     }
 }
@@ -126,6 +132,23 @@ pub struct ItemView {
     pub eta: Option<u64>,
     /// A pause/remove was requested and the download is shutting down.
     pub stopping: bool,
+    /// Completion (0..=100) of up to 64 slices of the file, for the "connections map".
+    pub segments: Vec<u8>,
+}
+
+/// Result of checking a link before the user confirms the download.
+#[derive(Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct Prepared {
+    pub url: String,
+    pub filename: String,
+    pub total: Option<u64>,
+    pub resumable: bool,
+    pub category: String,
+    /// Where the file would be saved right now (last chosen folder or the category folder).
+    pub folder: String,
+    /// The automatic folder for this kind of file.
+    pub category_folder: String,
 }
 
 #[derive(Clone, Copy)]
@@ -424,11 +447,16 @@ impl Manager {
     }
 
     pub fn set_settings(&self, mut s: Settings) -> Result<()> {
-        let (fallback, token) = {
+        let (fallback, token, last_dir) = {
             let cur = self.inner.settings.lock().unwrap();
-            (cur.download_dir.clone(), cur.api_token.clone())
+            (
+                cur.download_dir.clone(),
+                cur.api_token.clone(),
+                cur.last_dir.clone(),
+            )
         };
         s.api_token = token; // the UI can never change the pairing token
+        s.last_dir = last_dir; // only changed through the download dialogs
         s.sanitize(Path::new(&fallback));
         std::fs::create_dir_all(&s.download_dir)
             .map_err(|e| anyhow!("cannot create folder {}: {e}", s.download_dir))?;
@@ -485,6 +513,19 @@ impl Manager {
         start: bool,
         headers: Vec<(String, String)>,
     ) -> Result<u64> {
+        self.add_full(url, dir, None, start, headers).await
+    }
+
+    /// The general form: optional folder and file name chosen by the user.
+    /// A chosen folder becomes the default for the next download.
+    pub async fn add_full(
+        &self,
+        url: &str,
+        dir: Option<&str>,
+        filename: Option<&str>,
+        start: bool,
+        headers: Vec<(String, String)>,
+    ) -> Result<u64> {
         let url = url.trim();
         let parsed = reqwest::Url::parse(url).map_err(|e| anyhow!("invalid URL: {e}"))?;
         if !matches!(parsed.scheme(), "http" | "https") {
@@ -493,21 +534,29 @@ impl Manager {
 
         let info = probe::probe(&self.inner.client, url, &headers_from(&headers)).await?;
         let settings = self.settings();
+        let chosen_name = filename
+            .map(probe::sanitize_filename)
+            .filter(|n| !n.is_empty())
+            .unwrap_or_else(|| info.filename.clone());
         let custom = dir.map(str::trim).filter(|d| !d.is_empty());
-        let category = category_of(&info.filename);
+        let category = category_of(&chosen_name);
+        let category_folder = self.category_folder(&settings, category);
         let folder = match custom {
             Some(d) => PathBuf::from(d),
-            None if settings.categorize => Path::new(&settings.download_dir).join(category),
-            None => PathBuf::from(&settings.download_dir),
+            None if !settings.last_dir.trim().is_empty() => PathBuf::from(settings.last_dir.trim()),
+            None => category_folder.clone(),
         };
         std::fs::create_dir_all(&folder)
             .map_err(|e| anyhow!("cannot create folder {}: {e}", folder.display()))?;
+        if custom.is_some() {
+            self.remember_dir(&folder, &category_folder);
+        }
 
-        let path = self.unique_path(folder.join(&info.filename));
+        let path = self.unique_path(folder.join(&chosen_name));
         let filename = path
             .file_name()
             .map(|n| n.to_string_lossy().to_string())
-            .unwrap_or(info.filename.clone());
+            .unwrap_or(chosen_name.clone());
         let id = self.inner.next_id.fetch_add(1, Ordering::Relaxed);
         let item = Item {
             id,
@@ -529,6 +578,72 @@ impl Manager {
             self.inner.schedule();
         }
         Ok(id)
+    }
+
+    fn category_folder(&self, settings: &Settings, category: &str) -> PathBuf {
+        if settings.categorize {
+            Path::new(&settings.download_dir).join(category)
+        } else {
+            PathBuf::from(&settings.download_dir)
+        }
+    }
+
+    /// Remembers the folder the user picked, so the next download starts there.
+    /// Picking the automatic category folder itself clears the memory again.
+    fn remember_dir(&self, chosen: &Path, category_folder: &Path) {
+        fn norm(p: &Path) -> String {
+            p.to_string_lossy()
+                .trim_end_matches(|c: char| c == '\\' || c == '/')
+                .to_lowercase()
+        }
+        let same = norm(chosen) == norm(category_folder);
+        {
+            let mut s = self.inner.settings.lock().unwrap();
+            s.last_dir = if same {
+                String::new()
+            } else {
+                chosen.to_string_lossy().into_owned()
+            };
+        }
+        self.inner.persist_settings();
+    }
+
+    pub fn clear_last_dir(&self) {
+        self.inner.settings.lock().unwrap().last_dir.clear();
+        self.inner.persist_settings();
+    }
+
+    pub fn set_confirm_downloads(&self, value: bool) {
+        self.inner.settings.lock().unwrap().confirm_downloads = value;
+        self.inner.persist_settings();
+    }
+
+    /// Checks a link (name, size, resume support) and suggests where to save it,
+    /// without adding anything to the list yet.
+    pub async fn prepare(&self, url: &str, headers: &[(String, String)]) -> Result<Prepared> {
+        let url = url.trim();
+        let parsed = reqwest::Url::parse(url).map_err(|e| anyhow!("invalid URL: {e}"))?;
+        if !matches!(parsed.scheme(), "http" | "https") {
+            bail!("only http:// and https:// links are supported");
+        }
+        let info = probe::probe(&self.inner.client, url, &headers_from(headers)).await?;
+        let settings = self.settings();
+        let category = category_of(&info.filename);
+        let category_folder = self.category_folder(&settings, category);
+        let folder = if settings.last_dir.trim().is_empty() {
+            category_folder.clone()
+        } else {
+            PathBuf::from(settings.last_dir.trim())
+        };
+        Ok(Prepared {
+            url: url.to_string(),
+            filename: info.filename,
+            total: info.total,
+            resumable: info.ranges,
+            category: category.to_string(),
+            folder: folder.to_string_lossy().into_owned(),
+            category_folder: category_folder.to_string_lossy().into_owned(),
+        })
     }
 
     pub fn pause(&self, id: u64) {
@@ -645,9 +760,15 @@ impl Manager {
 
     /// Current list with live speed and ETA. Call it about twice a second.
     pub fn snapshot(&self) -> Vec<ItemView> {
+        struct Live {
+            downloaded: u64,
+            speed: u64,
+            stopping: bool,
+            segments: Vec<u8>,
+        }
+
         let now = Instant::now();
-        // id -> (downloaded bytes, speed, stopping)
-        let live: HashMap<u64, (u64, u64, bool)> = {
+        let live: HashMap<u64, Live> = {
             let mut run = self.inner.running.lock().unwrap();
             run.iter_mut()
                 .map(|(id, r)| {
@@ -665,11 +786,12 @@ impl Manager {
                     }
                     (
                         *id,
-                        (
-                            r.progress.downloaded(),
-                            r.speed as u64,
-                            r.stop.load(Ordering::Relaxed),
-                        ),
+                        Live {
+                            downloaded: r.progress.downloaded(),
+                            speed: r.speed as u64,
+                            stopping: r.stop.load(Ordering::Relaxed),
+                            segments: r.progress.segments(64),
+                        },
                     )
                 })
                 .collect()
@@ -683,10 +805,12 @@ impl Manager {
                 item.headers.clear(); // never send cookies to the UI
                 let mut speed = 0u64;
                 let mut stopping = false;
-                if let Some((dl, sp, st)) = live.get(&item.id) {
-                    item.downloaded = *dl;
-                    speed = *sp;
-                    stopping = *st;
+                let mut segments = Vec::new();
+                if let Some(l) = live.get(&item.id) {
+                    item.downloaded = l.downloaded;
+                    speed = l.speed;
+                    stopping = l.stopping;
+                    segments = l.segments.clone();
                 }
                 if let Some(t) = item.total {
                     item.downloaded = item.downloaded.min(t);
@@ -702,6 +826,7 @@ impl Manager {
                     speed,
                     eta,
                     stopping,
+                    segments,
                 }
             })
             .collect()

@@ -7,8 +7,8 @@ use serde::{Deserialize, Serialize};
 use std::fmt;
 use std::io::SeekFrom;
 use std::path::{Path, PathBuf};
-use std::sync::atomic::{AtomicBool, AtomicU64, AtomicUsize, Ordering};
-use std::sync::{Arc, Mutex};
+use std::sync::atomic::{AtomicBool, AtomicU16, AtomicU64, AtomicUsize, Ordering};
+use std::sync::{Arc, Mutex, OnceLock};
 use std::time::Duration;
 use tokio::fs::OpenOptions;
 use tokio::io::{AsyncSeekExt, AsyncWriteExt, BufWriter};
@@ -30,12 +30,26 @@ fn stopped() -> anyhow::Error {
     anyhow::Error::new(Stopped)
 }
 
+/// The file on the server is no longer the one we started downloading
+/// (its size changed). The partial data is useless and gets deleted.
+#[derive(Debug)]
+pub struct FileChanged;
+
+impl fmt::Display for FileChanged {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "the file changed on the server")
+    }
+}
+impl std::error::Error for FileChanged {}
+
 /// Live counters that a UI can poll at any time.
 #[derive(Default)]
 pub struct Progress {
     downloaded: AtomicU64,
     session: AtomicU64,
     total: AtomicU64,
+    /// Per-chunk completion in permille (0..=1000), created once by the engine.
+    chunks: OnceLock<Vec<AtomicU16>>,
 }
 
 impl Progress {
@@ -58,6 +72,33 @@ impl Progress {
     fn init(&self, downloaded: u64, total: u64) {
         self.downloaded.store(downloaded, Ordering::Relaxed);
         self.total.store(total, Ordering::Relaxed);
+    }
+    fn chunk_progress(&self, i: usize, permille: u16) {
+        if let Some(c) = self.chunks.get() {
+            if let Some(a) = c.get(i) {
+                a.store(permille, Ordering::Relaxed);
+            }
+        }
+    }
+    /// Completion (0..=100) of up to `buckets` equal slices of the file.
+    /// Empty when the download is not split into chunks.
+    pub fn segments(&self, buckets: usize) -> Vec<u8> {
+        let Some(c) = self.chunks.get() else {
+            return Vec::new();
+        };
+        let n = c.len();
+        if n == 0 {
+            return Vec::new();
+        }
+        let b = buckets.min(n).max(1);
+        (0..b)
+            .map(|k| {
+                let lo = k * n / b;
+                let hi = ((k + 1) * n / b).max(lo + 1);
+                let sum: u32 = c[lo..hi].iter().map(|a| a.load(Ordering::Relaxed) as u32).sum();
+                (sum / (hi - lo) as u32 / 10).min(100) as u8
+            })
+            .collect()
     }
 }
 
@@ -215,7 +256,10 @@ pub async fn run(job: Job) -> Result<()> {
     let state = match resumed {
         Some(s) => s,
         None => {
-            let chunk_size = (total / 64).clamp(512 * 1024, 8 * 1024 * 1024);
+            // Many small chunks = fast connections take more of them, slow ones fewer,
+            // so no connection is left alone downloading a big tail.
+            let conns = connections.clamp(1, 64) as u64;
+            let chunk_size = (total / (conns * 16)).clamp(256 * 1024, 4 * 1024 * 1024);
             let n = total.div_ceil(chunk_size) as usize;
             let f = std::fs::File::create(&part)
                 .with_context(|| format!("cannot create {}", part.display()))?;
@@ -240,6 +284,13 @@ pub async fn run(job: Job) -> Result<()> {
         .sum();
     let remaining = state.done.iter().filter(|d| !**d).count();
     progress.init(done_bytes, total);
+    let _ = progress.chunks.set(
+        state
+            .done
+            .iter()
+            .map(|d| AtomicU16::new(if *d { 1000 } else { 0 }))
+            .collect(),
+    );
 
     let shared = Arc::new(Shared {
         client,
@@ -289,6 +340,10 @@ pub async fn run(job: Job) -> Result<()> {
     let all_done = shared.state.lock().unwrap().done.iter().all(|d| *d);
     if !all_done {
         if let Some(e) = real_err {
+            if e.downcast_ref::<FileChanged>().is_some() {
+                remove_partial(&out);
+                return Err(e.context("start the download again"));
+            }
             return Err(e.context("download failed"));
         }
         if was_stopped || stop.load(Ordering::Relaxed) {
@@ -297,6 +352,16 @@ pub async fn run(job: Job) -> Result<()> {
         bail!("download incomplete");
     }
 
+    // Integrity: the finished file must have exactly the size the server announced.
+    match std::fs::metadata(&part) {
+        Ok(m) if m.len() == total => {}
+        Ok(m) => bail!("file size mismatch: expected {} bytes but found {}", total, m.len()),
+        Err(e) => bail!("cannot read the finished file: {e}"),
+    }
+    // Push everything to disk before the file gets its final name.
+    if let Ok(f) = std::fs::OpenOptions::new().write(true).open(&part) {
+        let _ = f.sync_all();
+    }
     std::fs::rename(&part, &out)
         .with_context(|| format!("cannot move finished file to {}", out.display()))?;
     let _ = std::fs::remove_file(&spath);
@@ -338,7 +403,7 @@ async fn download_chunk(sh: &Shared, i: usize) -> Result<()> {
             return Err(stopped());
         }
         let before = pos;
-        match fetch_range(sh, &mut pos, end).await {
+        match fetch_range(sh, i, &mut pos, end).await {
             Ok(()) => {}
             Err(ChunkError::Fatal(e)) => return Err(e),
             Err(ChunkError::Retry(e)) => {
@@ -358,6 +423,7 @@ async fn download_chunk(sh: &Shared, i: usize) -> Result<()> {
         }
     }
 
+    sh.progress.chunk_progress(i, 1000);
     let mut st = sh.state.lock().unwrap();
     st.done[i] = true;
     save_state(&sh.state_path, &st)
@@ -366,7 +432,9 @@ async fn download_chunk(sh: &Shared, i: usize) -> Result<()> {
 /// Downloads bytes [*pos ..= end] and writes them straight into the .part file.
 /// *pos is advanced only for bytes that were handed to the writer, so a retry
 /// continues exactly where the connection broke.
-async fn fetch_range(sh: &Shared, pos: &mut u64, end: u64) -> Result<(), ChunkError> {
+async fn fetch_range(sh: &Shared, i: usize, pos: &mut u64, end: u64) -> Result<(), ChunkError> {
+    let chunk_start = i as u64 * sh.chunk_size;
+    let chunk_total = end - chunk_start + 1;
     let resp = sh
         .client
         .get(&sh.url)
@@ -384,6 +452,33 @@ async fn fetch_range(sh: &Shared, pos: &mut u64, end: u64) -> Result<(), ChunkEr
         } else {
             ChunkError::Fatal(err)
         });
+    }
+
+    // Integrity: the server must answer with exactly the part we asked for,
+    // and the total size must still be the one we started with.
+    if let Some(cr) = resp
+        .headers()
+        .get(header::CONTENT_RANGE)
+        .and_then(|v| v.to_str().ok())
+    {
+        if let Some((range, tot)) = cr
+            .trim()
+            .strip_prefix("bytes ")
+            .and_then(|r| r.split_once('/'))
+        {
+            if let Ok(t) = tot.trim().parse::<u64>() {
+                if t != sh.total {
+                    return Err(ChunkError::Fatal(anyhow::Error::new(FileChanged)));
+                }
+            }
+            if let Some(s) = range.split('-').next().and_then(|s| s.trim().parse::<u64>().ok()) {
+                if s != *pos {
+                    return Err(ChunkError::Retry(anyhow!(
+                        "the server sent the wrong part of the file"
+                    )));
+                }
+            }
+        }
     }
 
     let mut file = OpenOptions::new()
@@ -420,6 +515,10 @@ async fn fetch_range(sh: &Shared, pos: &mut u64, end: u64) -> Result<(), ChunkEr
                     .map_err(|e| ChunkError::Fatal(e.into()))?;
                 *pos += take as u64;
                 sh.progress.add(take as u64);
+                sh.progress.chunk_progress(
+                    i,
+                    (((*pos - chunk_start) * 1000) / chunk_total).min(1000) as u16,
+                );
             }
             Some(Err(e)) => {
                 net_err = Some(e.into());

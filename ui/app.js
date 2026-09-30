@@ -16,31 +16,29 @@
       add: 'افزودن لینک', resume: 'ادامه', pause: 'توقف', delete: 'حذف',
       resumeAll: 'ادامه‌ی همه', pauseAll: 'توقف همه', clearDone: 'پاک‌کردن تمام‌شده‌ها',
       settings: 'تنظیمات',
-      fAll: 'همه‌ی دانلودها', fActive: 'در حال دانلود', fCompleted: 'تمام‌شده', fUnfinished: 'ناتمام',
-      catTitle: 'دسته‌بندی',
+      tAll: 'همه‌ی دانلودها', tStatus: 'وضعیت',
+      fActive: 'در حال دانلود', fCompleted: 'تمام‌شده', fUnfinished: 'ناتمام',
       cat_Compressed: 'فشرده', cat_Documents: 'اسناد', cat_Music: 'موسیقی',
       cat_Video: 'ویدیو', cat_Programs: 'برنامه‌ها', cat_General: 'عمومی',
       colName: 'نام فایل', colSize: 'حجم', colProgress: 'پیشرفت', colSpeed: 'سرعت',
       colEta: 'زمان باقی‌مانده', colStatus: 'وضعیت', colAdded: 'زمان افزودن',
       st_queued: 'در صف', st_downloading: 'در حال دانلود', st_paused: 'متوقف',
       st_completed: 'تمام شد', st_error: 'خطا', st_pausing: 'در حال توقف…',
+      dSegments: 'نقشه‌ی دانلود (بخش‌هایی که با اتصال‌های هم‌زمان گرفته می‌شوند)',
+      dUrl: 'آدرس', dPath: 'مسیر ذخیره', dDone: 'دریافت‌شده', dResume: 'قابلیت ادامه',
+      yes: 'دارد', no: 'ندارد',
       addTitle: 'افزودن دانلود جدید', urlsLabel: 'لینک‌ها (هر خط یک لینک)',
       destLabel: 'پوشه‌ی مقصد (خالی = پوشه‌ی پیش‌فرض)', browse: 'انتخاب…',
       startNow: 'همین حالا شروع شود', cancel: 'انصراف', addBtn: 'افزودن',
       adding: 'در حال بررسی لینک‌ها…',
       settingsTitle: 'تنظیمات', setDir: 'پوشه‌ی پیش‌فرض دانلود',
+      lastDirLbl: 'آخرین پوشه‌ی انتخابی (دانلود بعدی همین‌جا می‌رود)', clear: 'پاک‌کردن',
       setConn: 'اتصال برای هر دانلود (۱ تا ۶۴)',
       setConc: 'دانلود هم‌زمان (بقیه در صف)',
       setLimit: 'محدودیت سرعت کل (KB/s، صفر = بدون محدودیت)',
       setRetries: 'تعداد تلاش مجدد',
       setCategorize: 'فایل‌ها در زیرپوشه‌ی دسته‌بندی (ویدیو، موسیقی، …) ذخیره شوند',
-      setLang: 'زبان', save: 'ذخیره',
-      delTitle: 'حذف از لیست', delQuestion: 'مورد انتخاب‌شده از لیست حذف شود؟',
-      delQuestionN: 'مورد از لیست حذف شود؟',
-      delFile: 'فایل دانلودشده هم از دیسک پاک شود',
-      openFile: 'باز کردن فایل', openFolder: 'نمایش در پوشه',
-      sbSpeed: 'سرعت کل', sbActive: 'فعال', sbTotal: 'همه',
-      empty: 'هنوز دانلودی ندارید. روی «افزودن لینک» بزنید.',
+      setConfirm: 'قبل از هر دانلود مرورگر، پنجره‌ی تأیید (مثل IDM) نشان داده شود',
       setTray: 'با بستن پنجره، برنامه در سینی سیستم بماند (دانلودها ادامه پیدا می‌کنند)',
       schedTitle: 'زمان‌بندی', schedEnable: 'زمان‌بندی فعال باشد',
       schedStart: 'شروع دانلودها در ساعت', schedStop: 'توقف دانلودها در ساعت',
@@ -52,36 +50,41 @@
       intRunning: 'سرور فعال است', intStopped: 'سرور اجرا نشد (پورت اشغال است)',
       copy: 'کپی', copied: 'کپی شد', addedToast: 'از مرورگر اضافه شد: ',
       powerBanner: 'کامپیوتر تا یک دقیقه‌ی دیگر خاموش می‌شود.',
+      setLang: 'زبان', save: 'ذخیره',
+      delTitle: 'حذف از لیست', delQuestion: 'مورد انتخاب‌شده از لیست حذف شود؟',
+      delQuestionN: 'مورد از لیست حذف شود؟',
+      delFile: 'فایل دانلودشده هم از دیسک پاک شود',
+      openFile: 'باز کردن فایل', openFolder: 'نمایش در پوشه',
+      sbSpeed: 'سرعت کل', sbActive: 'فعال', sbTotal: 'همه',
+      empty: 'هنوز دانلودی ندارید. روی «افزودن لینک» بزنید.',
     },
     en: {
       add: 'Add URL', resume: 'Resume', pause: 'Pause', delete: 'Delete',
       resumeAll: 'Resume all', pauseAll: 'Pause all', clearDone: 'Clear finished',
       settings: 'Settings',
-      fAll: 'All downloads', fActive: 'Downloading', fCompleted: 'Completed', fUnfinished: 'Unfinished',
-      catTitle: 'Categories',
+      tAll: 'All downloads', tStatus: 'Status',
+      fActive: 'Downloading', fCompleted: 'Completed', fUnfinished: 'Unfinished',
       cat_Compressed: 'Compressed', cat_Documents: 'Documents', cat_Music: 'Music',
       cat_Video: 'Video', cat_Programs: 'Programs', cat_General: 'General',
       colName: 'File name', colSize: 'Size', colProgress: 'Progress', colSpeed: 'Speed',
       colEta: 'Time left', colStatus: 'Status', colAdded: 'Added',
       st_queued: 'Queued', st_downloading: 'Downloading', st_paused: 'Paused',
       st_completed: 'Completed', st_error: 'Error', st_pausing: 'Pausing…',
+      dSegments: 'Download map (parts fetched by parallel connections)',
+      dUrl: 'URL', dPath: 'Save path', dDone: 'Downloaded', dResume: 'Resume support',
+      yes: 'Yes', no: 'No',
       addTitle: 'Add new download', urlsLabel: 'Links (one per line)',
       destLabel: 'Destination folder (empty = default folder)', browse: 'Browse…',
       startNow: 'Start immediately', cancel: 'Cancel', addBtn: 'Add',
       adding: 'Checking links…',
       settingsTitle: 'Settings', setDir: 'Default download folder',
+      lastDirLbl: 'Last chosen folder (the next download goes here)', clear: 'Clear',
       setConn: 'Connections per download (1-64)',
       setConc: 'Simultaneous downloads (rest wait in queue)',
       setLimit: 'Total speed limit (KB/s, 0 = unlimited)',
       setRetries: 'Retries per chunk',
       setCategorize: 'Sort files into sub-folders (Video, Music, ...)',
-      setLang: 'Language', save: 'Save',
-      delTitle: 'Remove from list', delQuestion: 'Remove the selected item from the list?',
-      delQuestionN: 'items will be removed from the list.',
-      delFile: 'Also delete the downloaded file from disk',
-      openFile: 'Open file', openFolder: 'Show in folder',
-      sbSpeed: 'Total speed', sbActive: 'Active', sbTotal: 'Total',
-      empty: 'No downloads yet. Click "Add URL" to start.',
+      setConfirm: 'Show a confirmation window (like IDM) before each browser download',
       setTray: 'Closing the window keeps RDM running in the system tray (downloads continue)',
       schedTitle: 'Scheduler', schedEnable: 'Enable scheduler',
       schedStart: 'Start downloads at', schedStop: 'Stop downloads at',
@@ -93,6 +96,13 @@
       intRunning: 'Server is running', intStopped: 'Server could not start (port in use)',
       copy: 'Copy', copied: 'Copied', addedToast: 'Added from browser: ',
       powerBanner: 'The computer will shut down in one minute.',
+      setLang: 'Language', save: 'Save',
+      delTitle: 'Remove from list', delQuestion: 'Remove the selected item from the list?',
+      delQuestionN: 'items will be removed from the list.',
+      delFile: 'Also delete the downloaded file from disk',
+      openFile: 'Open file', openFolder: 'Show in folder',
+      sbSpeed: 'Total speed', sbActive: 'Active', sbTotal: 'Total',
+      empty: 'No downloads yet. Click "Add URL" to start.',
     },
   };
 
@@ -108,14 +118,26 @@
     String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
   const ICONS = {
+    logo: '<path d="M12 3v11m0 0l-4-4m4 4l4-4"/><path d="M4 15v3a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-3"/>',
     plus: '<path d="M12 5v14M5 12h14"/>',
-    play: '<polygon points="6 4 20 12 6 20 6 4"/>',
-    pause: '<rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>',
+    play: '<polygon points="7 4 19 12 7 20 7 4"/>',
+    playall: '<polygon points="4 5 12 12 4 19 4 5"/><polygon points="13 5 21 12 13 19 13 5"/>',
+    pause: '<rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/>',
+    pauseall: '<rect x="3" y="5" width="3.5" height="14" rx="1"/><rect x="9" y="5" width="3.5" height="14" rx="1"/><rect x="15" y="5" width="3.5" height="14" rx="1"/>',
     trash: '<path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/>',
     sliders: '<path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/>',
     folder: '<path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>',
     file: '<path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/>',
     check: '<path d="M20 6L9 17l-5-5"/>',
+    all: '<path d="M4 6h16M4 12h16M4 18h16"/>',
+    bolt: '<path d="M13 2L4 14h7l-1 8 9-12h-7z"/>',
+    clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+    box: '<path d="M21 8l-9-5-9 5 9 5z"/><path d="M3 8v8l9 5 9-5V8"/>',
+    doc: '<path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M8 13h8M8 17h5"/>',
+    music: '<path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/>',
+    video: '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M10 9l5 3-5 3z"/>',
+    app: '<rect x="4" y="4" width="16" height="16" rx="3"/><path d="M9 9h6v6H9z"/>',
+    dots: '<circle cx="5" cy="12" r="1.2"/><circle cx="12" cy="12" r="1.2"/><circle cx="19" cy="12" r="1.2"/>',
   };
   const svg = (name) => `<svg class="i" viewBox="0 0 24 24">${ICONS[name] || ''}</svg>`;
 
@@ -162,14 +184,10 @@
   let selected = new Set();
   let filter = 'all';
   const rowEls = new Map();
+  const speedHist = [];
 
-  const FILTERS = [
-    ['all', 'fAll'],
-    ['active', 'fActive'],
-    ['completed', 'fCompleted'],
-    ['unfinished', 'fUnfinished'],
-  ];
   const CATS = ['Compressed', 'Documents', 'Music', 'Video', 'Programs', 'General'];
+  const CAT_ICON = { Compressed: 'box', Documents: 'doc', Music: 'music', Video: 'video', Programs: 'app', General: 'file' };
 
   function matches(key, it) {
     if (key === 'all') return true;
@@ -181,34 +199,38 @@
   }
 
   /* ------------------------------------------------------------------ */
-  /* sidebar                                                             */
+  /* sidebar (tree like IDM: All downloads > categories, then status)    */
   /* ------------------------------------------------------------------ */
-  const sideBtns = [];
-  let catTitleEl = null;
+  const sideNodes = [];
+  let statusTitleEl = null;
 
   function buildSide() {
     const side = $('side');
     side.innerHTML = '';
-    const make = (key, labelKey) => {
+    const make = (key, labelKey, level, icon) => {
       const b = document.createElement('button');
-      b.innerHTML = '<span class="lbl"></span><span class="cnt num"></span>';
+      b.className = 'node' + (level ? ' lvl1' : '');
+      b.innerHTML = `${svg(icon)}<span class="lbl"></span><span class="cnt num"></span>`;
       b.addEventListener('click', () => { filter = key; render(); });
       side.appendChild(b);
-      sideBtns.push({ el: b, key, labelKey });
+      sideNodes.push({ el: b, key, labelKey });
     };
-    FILTERS.forEach(([key, label]) => make(key, label));
-    catTitleEl = document.createElement('div');
-    catTitleEl.className = 'title';
-    side.appendChild(catTitleEl);
-    CATS.forEach((c) => make('cat:' + c, 'cat_' + c));
+    make('all', 'tAll', 0, 'all');
+    CATS.forEach((c) => make('cat:' + c, 'cat_' + c, 1, CAT_ICON[c]));
+    statusTitleEl = document.createElement('div');
+    statusTitleEl.className = 'title';
+    side.appendChild(statusTitleEl);
+    make('active', 'fActive', 0, 'bolt');
+    make('unfinished', 'fUnfinished', 0, 'clock');
+    make('completed', 'fCompleted', 0, 'check');
   }
 
   function updateSide() {
-    catTitleEl.textContent = t('catTitle');
-    for (const b of sideBtns) {
-      setText(b.el.querySelector('.lbl'), t(b.labelKey));
-      setText(b.el.querySelector('.cnt'), String(items.filter((it) => matches(b.key, it)).length));
-      b.el.classList.toggle('on', b.key === filter);
+    statusTitleEl.textContent = t('tStatus');
+    for (const n of sideNodes) {
+      setText(n.el.querySelector('.lbl'), t(n.labelKey));
+      setText(n.el.querySelector('.cnt'), String(items.filter((it) => matches(n.key, it)).length));
+      n.el.classList.toggle('on', n.key === filter);
     }
   }
 
@@ -221,10 +243,10 @@
     tr.innerHTML = `
       <td class="c-name"><span class="tag"></span><span class="name"></span></td>
       <td class="c-size"><span class="num size"></span></td>
-      <td class="c-prog"><span class="bar"><span class="fill"></span></span><span class="num pct"></span></td>
+      <td class="c-prog"><div class="progwrap"><div class="bar"><i class="fill"></i></div><span class="num pct"></span></div></td>
       <td class="c-speed"><span class="num speed"></span></td>
       <td class="c-eta"><span class="num eta"></span></td>
-      <td class="c-status"><span class="stt"></span><span class="sub"></span></td>
+      <td class="c-status"><span class="pill stt"></span><span class="sub"></span></td>
       <td class="c-added"><span class="num added"></span></td>
       <td class="c-act"></td>`;
     const q = (s) => tr.querySelector(s);
@@ -249,31 +271,36 @@
     return h;
   }
 
+  function percentOf(it) {
+    if (it.status === 'completed') return 100;
+    if (it.total) return Math.min(100, (it.downloaded / it.total) * 100);
+    return null;
+  }
+
   function updateRow(tr, it) {
     const r = tr._r;
     setText(r.tag, it.category ? t('cat_' + it.category) : '');
+    r.tag.className = 'tag cat-' + (it.category || 'General');
     setText(r.name, it.filename);
     r.name.title = `${it.savePath}\n${it.url}`;
     setText(r.size, fmtBytes(it.total));
 
-    let pct = null;
-    if (it.status === 'completed') pct = 100;
-    else if (it.total) pct = Math.min(100, (it.downloaded / it.total) * 100);
-    const indet = pct === null && it.status === 'downloading';
+    const pct = percentOf(it);
+    const active = it.status === 'downloading';
     r.bar.className = 'bar' +
-      (indet ? ' indet' : '') +
+      (pct === null && active ? ' indet' : '') +
+      (active ? '' : ' idle') +
       (it.status === 'completed' ? ' done' : '') +
       (it.status === 'error' ? ' err' : '') +
       (it.status === 'paused' ? ' paused' : '');
     r.fill.style.width = (pct === null ? 0 : pct) + '%';
     setText(r.pct, pct === null ? '' : Math.floor(pct) + '%');
 
-    setText(r.speed, it.status === 'downloading' ? fmtSpeed(it.speed) : '');
-    setText(r.eta, it.status === 'downloading' ? fmtEta(it.eta) : '');
+    setText(r.speed, active ? fmtSpeed(it.speed) : '');
+    setText(r.eta, active ? fmtEta(it.eta) : '');
 
-    const label = it.stopping ? t('st_pausing') : t('st_' + it.status);
-    setText(r.stt, label);
-    r.stt.className = 'stt st-' + it.status;
+    setText(r.stt, it.stopping ? t('st_pausing') : t('st_' + it.status));
+    r.stt.className = 'pill stt st-' + it.status;
     const shortErr = it.error ? (it.error.length > 70 ? it.error.slice(0, 70) + '…' : it.error) : '';
     setText(r.sub, shortErr);
     r.sub.title = it.error || '';
@@ -284,8 +311,74 @@
     tr.classList.toggle('sel', selected.has(it.id));
   }
 
+  /* ---------------- details panel with the "connections map" ---------------- */
+  let segCount = 0;
+
+  function ensureSegCells(n) {
+    if (segCount === n) return;
+    const seg = $('seg');
+    seg.innerHTML = '';
+    for (let k = 0; k < n; k++) seg.appendChild(document.createElement('i'));
+    seg.style.gridTemplateColumns = `repeat(${n}, 1fr)`;
+    segCount = n;
+  }
+
+  function updateDetail() {
+    const sel = items.filter((i) => selected.has(i.id));
+    const panel = $('detail');
+    if (sel.length !== 1) { panel.hidden = true; return; }
+    const it = sel[0];
+    panel.hidden = false;
+
+    setText($('d-name'), it.filename);
+    setText($('d-status'), it.stopping ? t('st_pausing') : t('st_' + it.status));
+    $('d-status').className = 'pill st-' + it.status;
+    setText($('d-url'), it.url);
+    setText($('d-path'), it.savePath);
+    setText($('d-size'), fmtBytes(it.total));
+    setText($('d-done'), fmtBytes(it.downloaded));
+    setText($('d-speed'), it.status === 'downloading' ? fmtSpeed(it.speed) : '—');
+    setText($('d-eta'), it.status === 'downloading' && it.eta != null ? fmtEta(it.eta) : '—');
+    setText($('d-resume'), it.resumable ? t('yes') : t('no'));
+    setText($('d-added'), fmtDate(it.added));
+
+    let cells;
+    if (it.status === 'completed') {
+      cells = new Array(64).fill(100);
+    } else if (it.segments && it.segments.length) {
+      cells = it.segments;
+    } else {
+      const pct = percentOf(it) || 0;
+      cells = Array.from({ length: 64 }, (_, k) => Math.max(0, Math.min(1, (pct * 64) / 100 - k)) * 100);
+    }
+    ensureSegCells(cells.length);
+    const seg = $('seg');
+    seg.classList.toggle('done', it.status === 'completed');
+    const nodes = seg.children;
+    for (let k = 0; k < cells.length; k++) {
+      const v = Math.round(cells[k]);
+      const el = nodes[k];
+      if (el._v !== v) {
+        el._v = v;
+        el.style.setProperty('--p', v + '%');
+        el.classList.toggle('full', v >= 100);
+      }
+    }
+  }
+
+  function drawSpark() {
+    const W = 120, H = 24;
+    const pts = speedHist.slice(-60);
+    if (pts.length < 2) { $('spark-line').setAttribute('d', ''); $('spark-area').setAttribute('d', ''); return; }
+    const max = Math.max(...pts, 1);
+    const step = W / (pts.length - 1);
+    const xy = pts.map((v, k) => `${(k * step).toFixed(1)},${(H - 2 - (v / max) * (H - 5)).toFixed(1)}`);
+    const line = 'M' + xy.join(' L');
+    $('spark-line').setAttribute('d', line);
+    $('spark-area').setAttribute('d', `${line} L${W},${H} L0,${H} Z`);
+  }
+
   function render() {
-    // forget selections of rows that no longer exist
     const ids = new Set(items.map((i) => i.id));
     for (const id of [...selected]) if (!ids.has(id)) selected.delete(id);
 
@@ -309,6 +402,7 @@
     $('empty').hidden = list.length > 0;
     updateSide();
     updateToolbar();
+    updateDetail();
 
     const active = items.filter((i) => i.status === 'downloading');
     setText($('sb-speed'), fmtBytes(active.reduce((s, i) => s + (i.speed || 0), 0)) + '/s');
@@ -347,7 +441,7 @@
     else if (kind === 'delete') askDelete([id]);
   }
 
-  function selectedIds() { return [...selected]; }
+  const selectedIds = () => [...selected];
 
   $('rows').addEventListener('click', (e) => {
     const tr = e.target.closest('tr');
@@ -404,9 +498,11 @@
 
   // ----- add -----
   const dlgAdd = $('dlg-add');
-  $('btn-add').addEventListener('click', () => {
+  $('btn-add').addEventListener('click', async () => {
     $('add-error').hidden = true;
     $('add-ok').disabled = false;
+    const s = await call('get_settings');
+    $('add-dir').value = (s && s.lastDir) || ''; // the folder used last time
     dlgAdd.showModal();
     $('add-urls').focus();
   });
@@ -455,11 +551,13 @@
     const s = await call('get_settings');
     if (!s) return;
     $('set-dir').value = s.downloadDir;
+    setText($('last-dir'), s.lastDir || '—');
     $('set-conn').value = s.connections;
     $('set-conc').value = s.maxConcurrent;
     $('set-limit').value = s.speedLimitKbps;
     $('set-retries').value = s.retries;
     $('set-cat').checked = s.categorize;
+    $('set-confirm').checked = s.confirmDownloads;
     $('set-tray').checked = s.closeToTray;
     $('set-sched').checked = s.scheduleEnabled;
     $('set-sstart').value = s.scheduleStart || '';
@@ -477,6 +575,10 @@
   });
   $('set-cancel').addEventListener('click', () => dlgSet.close());
   $('set-browse').addEventListener('click', () => pickFolder($('set-dir')));
+  $('last-clear').addEventListener('click', async () => {
+    await call('clear_last_dir');
+    setText($('last-dir'), '—');
+  });
   const num = (id, min, max, dflt) => {
     const v = parseInt($(id).value, 10);
     return Number.isFinite(v) ? Math.min(max, Math.max(min, v)) : dflt;
@@ -484,11 +586,12 @@
   $('set-ok').addEventListener('click', async () => {
     const settings = {
       downloadDir: $('set-dir').value.trim(),
-      connections: num('set-conn', 1, 64, 16),
+      connections: num('set-conn', 1, 64, 8),
       maxConcurrent: num('set-conc', 1, 16, 3),
       speedLimitKbps: num('set-limit', 0, 100000000, 0),
       retries: num('set-retries', 0, 50, 8),
       categorize: $('set-cat').checked,
+      confirmDownloads: $('set-confirm').checked,
       closeToTray: $('set-tray').checked,
       scheduleEnabled: $('set-sched').checked,
       scheduleStart: $('set-sstart').value || '',
@@ -550,19 +653,28 @@
     document.documentElement.lang = lang;
     document.documentElement.dir = lang === 'fa' ? 'rtl' : 'ltr';
     document.querySelectorAll('[data-i18n]').forEach((el) => { el.textContent = t(el.dataset.i18n); });
-    // force action buttons (tooltips) to be rebuilt in the new language
-    for (const tr of rowEls.values()) tr._sig = null;
+    for (const tr of rowEls.values()) tr._sig = null; // rebuild row tooltips
     render();
   }
 
   /* ------------------------------------------------------------------ */
   /* start                                                               */
   /* ------------------------------------------------------------------ */
+  function onDownloads(list) {
+    items = list || [];
+    speedHist.push(items.filter((i) => i.status === 'downloading').reduce((s, i) => s + (i.speed || 0), 0));
+    if (speedHist.length > 120) speedHist.shift();
+    render();
+    drawSpark();
+  }
+
   async function init() {
-    document.querySelectorAll('[data-icon]').forEach((el) => { el.outerHTML = svg(el.dataset.icon); });
+    document.querySelectorAll('[data-icon]').forEach((el) => {
+      el.outerHTML = svg(el.dataset.icon).replace('class="i"', `class="i ${el.className || ''}"`);
+    });
     buildSide();
     applyLang();
-    await listen('downloads', (ev) => { items = ev.payload || []; render(); });
+    await listen('downloads', (ev) => onDownloads(ev.payload));
     await listen('added', (ev) => toast(t('addedToast') + ev.payload));
     await listen('power', () => {
       setText($('banner-text'), t('powerBanner'));
