@@ -561,3 +561,8 @@ dialog.wide { width: min(860px, 96vw); }
 .sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
 #rows tr { content-visibility: auto; contain-intrinsic-size: auto 54px; }
 #rows tr:focus-visible { outline: 2px solid var(--neon); outline-offset: -2px; }
+
+/* details window: collapsible connections table (IDM style) */
+#more { margin-top: 6px; }
+#more[hidden] { display: none; }
+#more .tablewrap { max-height: 260px; }

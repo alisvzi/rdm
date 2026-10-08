@@ -37,7 +37,6 @@
     <button role="tab" id="tab-speed" aria-controls="p-speed" aria-selected="false" tabindex="-1" data-i18n="tabSpeed"></button>
     <button role="tab" id="tab-done" aria-controls="p-done" aria-selected="false" tabindex="-1" data-i18n="tabDone"></button>
     <button role="tab" id="tab-info" aria-controls="p-info" aria-selected="false" tabindex="-1" data-i18n="tabInfo"></button>
-    <button role="tab" id="tab-conn" aria-controls="p-conn" aria-selected="false" tabindex="-1" data-i18n="tabConn"></button>
   </div>
 
   <main class="panels glass">
@@ -70,6 +69,27 @@
       <div id="error-box" class="notice bad" hidden></div>
       <div class="seg-title" data-i18n="mapTitle"></div>
       <div id="map1" class="seg-map" role="img" aria-label="download map"></div>
+      <div id="more">
+        <div id="map-info" class="hint" aria-live="polite"></div>
+        <div class="tablewrap">
+          <table class="ctable">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th data-i18n="cDown"></th>
+                <th data-i18n="cRange"></th>
+                <th class="c-p" data-i18n="cProgress"></th>
+                <th data-i18n="cSpeed"></th>
+                <th data-i18n="cStatus"></th>
+                <th data-i18n="cRetry"></th>
+                <th data-i18n="cHttp"></th>
+              </tr>
+            </thead>
+            <tbody id="ctbody"></tbody>
+          </table>
+          <p id="no-conns" class="hint" data-i18n="noConns" hidden></p>
+        </div>
+      </div>
     </section>
 
     <!-- 2. Speed limiter -->
@@ -137,34 +157,12 @@
       <p id="chk-label" class="hint" data-i18n="chkHint"></p>
     </section>
 
-    <!-- 5. Connections -->
-    <section id="p-conn" role="tabpanel" aria-labelledby="tab-conn" hidden>
-      <div class="seg-title" data-i18n="mapTitle"></div>
-      <div id="map2" class="seg-map tall" role="img" aria-label="download map"></div>
-      <div id="map-info" class="hint" aria-live="polite"></div>
-      <div class="tablewrap">
-        <table class="ctable">
-          <thead>
-            <tr>
-              <th>#</th>
-              <th data-i18n="cDown"></th>
-              <th data-i18n="cRange"></th>
-              <th class="c-p" data-i18n="cProgress"></th>
-              <th data-i18n="cSpeed"></th>
-              <th data-i18n="cStatus"></th>
-              <th data-i18n="cRetry"></th>
-              <th data-i18n="cHttp"></th>
-            </tr>
-          </thead>
-          <tbody id="ctbody"></tbody>
-        </table>
-        <p id="no-conns" class="hint" data-i18n="noConns" hidden></p>
-      </div>
-    </section>
   </main>
 
   <footer class="dw-foot">
+    <button id="f-more" class="btn" type="button" aria-expanded="true" aria-controls="more"></button>
     <button id="f-toggle" class="btn primary"></button>
+    <button id="f-cancel" class="btn" type="button" data-i18n="cancel"></button>
     <button id="f-file" class="btn" data-i18n="openFile"></button>
     <button id="f-folder" class="btn" data-i18n="openFolder"></button>
     <span class="grow"></span>

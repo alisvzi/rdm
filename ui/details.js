@@ -63,6 +63,7 @@
       noConns: 'این دانلود در حال اجرا نیست؛ اطلاعات اتصال‌ها فقط هنگام دانلود نمایش داده می‌شود.',
       mapTip: 'بخش {i} از {n} — بایت {a} تا {b} — {p}٪', mapNoOwner: 'هیچ اتصالی الان روی این بخش نیست.',
       mapOwner: 'اتصال {c}',
+      hideDetails: '<< پنهان کردن جزئیات', showDetails: 'نمایش جزئیات >>', cancel: 'لغو',
       pause: 'توقف', resume: 'ادامه', retry: 'تلاش دوباره', openFile: 'باز کردن فایل',
       openFolder: 'نمایش در پوشه', close: 'بستن', copied: 'کپی شد',
       noData: 'این دانلود دیگر وجود ندارد.',
@@ -118,6 +119,7 @@
       noConns: 'This download is not running; connection data is only available while it downloads.',
       mapTip: 'Slice {i} of {n} — bytes {a} to {b} — {p}%', mapNoOwner: 'No connection is on this part right now.',
       mapOwner: 'Connection {c}',
+      hideDetails: '<< Hide details', showDetails: 'Show details >>', cancel: 'Cancel',
       pause: 'Pause', resume: 'Resume', retry: 'Retry', openFile: 'Open file',
       openFolder: 'Show in folder', close: 'Close', copied: 'Copied',
       noData: 'This download no longer exists.',
@@ -287,7 +289,7 @@
       if (owner) {
         highlightConn = owner.id;
         expanded.add(owner.id);
-        selectTab('conn');
+        setMore(true);
         renderConnections();
         const row = rowEls.get(owner.id);
         if (row) row.main.scrollIntoView({ block: 'nearest' });
@@ -295,7 +297,6 @@
     });
   }
   bindMapEvents($('map1'));
-  bindMapEvents($('map2'));
 
   /* ------------------------------------------------------------------ */
   /* connections table (keyed rows, only changed text is touched)        */
@@ -479,7 +480,6 @@
     if (!cells && x.segments && x.segments.length) cells = x.segments;
     if (!cells && x.status === 'completed') cells = new Array(64).fill(100);
     renderMap($('map1'), cells, x.status === 'completed');
-    renderMap($('map2'), cells, x.status === 'completed');
 
     // details tab
     setText($('i-name'), x.filename);
@@ -539,7 +539,7 @@
   /* ------------------------------------------------------------------ */
   /* tabs                                                                */
   /* ------------------------------------------------------------------ */
-  const TABS = ['status', 'speed', 'done', 'info', 'conn'];
+  const TABS = ['status', 'speed', 'done', 'info'];
   function selectTab(name, focus) {
     tab = name;
     for (const n of TABS) {
@@ -577,6 +577,24 @@
     const act = e.currentTarget.dataset.act;
     if (act === 'pause') await call('pause_download', { id });
     else if (act === 'resume') await call('resume_download', { id });
+  });
+  // IDM-style: connections table can be hidden; the choice is remembered
+  let moreOpen = true;
+  try { moreOpen = localStorage.getItem('rdm.details.more') !== '0'; } catch (_) { /* storage unavailable */ }
+  function setMore(on) {
+    moreOpen = on;
+    $('more').hidden = !on;
+    const b = $('f-more');
+    b.textContent = t(on ? 'hideDetails' : 'showDetails');
+    b.setAttribute('aria-expanded', String(on));
+    try { localStorage.setItem('rdm.details.more', on ? '1' : '0'); } catch (_) { /* storage unavailable */ }
+    if (on && typeof renderConnections === 'function' && d) renderConnections();
+  }
+  $('f-more').addEventListener('click', () => setMore(!moreOpen));
+  // Cancel = stop the download (keeps the partial file so it can be resumed) and close the window
+  $('f-cancel').addEventListener('click', async () => {
+    if (d && (d.status === 'downloading' || d.status === 'queued')) await call('pause_download', { id });
+    await call('close_details', { id });
   });
   $('f-file').addEventListener('click', () => call('open_file', { id }));
   $('f-folder').addEventListener('click', () => call('open_folder', { id }));
@@ -632,17 +650,25 @@
   }
 
   let gone = false;
+  let lastStatus = null;
+  let closeOnDone = false;
   function onDetails(p) {
     if (gone) return;
     if (!p) { gone = true; document.body.innerHTML = `<p class="gone">${t('noData')}</p>`; return; }
     d = p;
     render();
+    // optional: close the window by itself when the download finishes while it is open
+    if (closeOnDone && lastStatus && lastStatus !== 'completed' && p.status === 'completed') {
+      setTimeout(() => call('close_details', { id }), 1500);
+    }
+    lastStatus = p.status;
   }
 
   async function init() {
     applyLang();
+    setMore(moreOpen);
     await listen('details', (ev) => onDetails(ev.payload));
-    refreshGlobalLimit();
+    refreshGlobalLimit().then((s) => { if (s) closeOnDone = !!s.closeDetailsOnDone; });
     const first = await call('get_details', { id });
     onDetails(first);
   }

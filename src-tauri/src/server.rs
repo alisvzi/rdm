@@ -226,6 +226,9 @@ fn handle(mut req: Request, dl: Downloads, app: AppHandle) {
                         match res {
                             Ok(id) => {
                                 let _ = app.emit("downloads", dl.snapshot());
+                                if b.start_now {
+                                    crate::auto_details(&app, &dl, id);
+                                }
                                 if let Some(p) = dl.path_of(id) {
                                     let name = std::path::Path::new(&p)
                                         .file_name()

@@ -111,6 +111,9 @@ async fn add_download(
 ) -> Res<u64> {
     let id = dl.add(&url, dir.as_deref(), start_now).await.map_err(err)?;
     notify(&app, &dl);
+    if start_now {
+        auto_details(&app, &dl, id);
+    }
     Ok(id)
 }
 
@@ -125,6 +128,7 @@ async fn pause_download(app: AppHandle, dl: State<'_, Downloads>, id: u64) -> Re
 async fn resume_download(app: AppHandle, dl: State<'_, Downloads>, id: u64) -> Res<()> {
     dl.resume(id);
     notify(&app, &dl);
+    auto_details(&app, &dl, id);
     Ok(())
 }
 
@@ -176,6 +180,18 @@ async fn save_settings(app: AppHandle, dl: State<'_, Downloads>, settings: Setti
 /// Opens (or focuses) the live details window of one download.
 #[tauri::command]
 async fn open_details(app: AppHandle, id: u64) -> Res<()> {
+    open_details_window(&app, id)
+}
+
+/// Opens the details window by itself when the user starts a download (setting-controlled).
+/// Never used for batch adds or queue starts, so hundreds of windows cannot open at once.
+pub(crate) fn auto_details(app: &AppHandle, dl: &Downloads, id: u64) {
+    if dl.settings().show_details_on_start {
+        let _ = open_details_window(app, id);
+    }
+}
+
+pub(crate) fn open_details_window(app: &AppHandle, id: u64) -> Res<()> {
     let label = format!("details-{id}");
     if let Some(w) = app.get_webview_window(&label) {
         let _ = w.show();
@@ -183,9 +199,9 @@ async fn open_details(app: AppHandle, id: u64) -> Res<()> {
         let _ = w.set_focus();
         return Ok(());
     }
-    tauri::WebviewWindowBuilder::new(&app, label, tauri::WebviewUrl::App("details.html".into()))
+    tauri::WebviewWindowBuilder::new(app, label, tauri::WebviewUrl::App("details.html".into()))
         .title("RDM")
-        .inner_size(920.0, 700.0)
+        .inner_size(920.0, 760.0)
         .min_inner_size(740.0, 540.0)
         .center()
         .theme(Some(tauri::Theme::Dark))
@@ -343,15 +359,19 @@ async fn confirm_pending(
     let p = store
         .get(id)
         .ok_or_else(|| "this request is no longer valid".to_string())?;
-    dl.add_full(
-        &p.url,
-        Some(folder.as_str()),
-        Some(filename.as_str()),
-        start,
-        p.headers.clone(),
-    )
-    .await
-    .map_err(err)?;
+    let new_id = dl
+        .add_full(
+            &p.url,
+            Some(folder.as_str()),
+            Some(filename.as_str()),
+            start,
+            p.headers.clone(),
+        )
+        .await
+        .map_err(err)?;
+    if start {
+        auto_details(&app, &dl, new_id);
+    }
     if dont_ask {
         dl.set_confirm_downloads(false);
     }

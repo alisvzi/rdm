@@ -40,6 +40,8 @@
       setRetries: 'تعداد تلاش مجدد',
       setCategorize: 'فایل‌ها در زیرپوشه‌ی دسته‌بندی (ویدیو، موسیقی، …) ذخیره شوند',
       setConfirm: 'قبل از هر دانلود مرورگر، پنجره‌ی تأیید (مثل IDM) نشان داده شود',
+      setShowDetails: 'هنگام شروع دانلود، پنجره‌ی جزئیات خودکار باز شود',
+      setCloseDetails: 'پنجره‌ی جزئیات بعد از اتمام دانلود خودکار بسته شود',
       setTray: 'با بستن پنجره، برنامه در سینی سیستم بماند (دانلودها ادامه پیدا می‌کنند)',
       scanTitle: 'اسکن آنتی‌ویروس بعد از دانلود (اختیاری)', scanPath: 'مسیر برنامه‌ی اسکنر (خالی = خاموش)',
       scanArgs: 'آرگومان‌ها ({file} جای مسیر فایل)', scanCodes: 'کدهای خروج «تهدید پیدا شد»',
@@ -119,6 +121,8 @@
       setRetries: 'Retries per chunk',
       setCategorize: 'Sort files into sub-folders (Video, Music, ...)',
       setConfirm: 'Show a confirmation window (like IDM) before each browser download',
+      setShowDetails: 'Open the details window automatically when a download starts',
+      setCloseDetails: 'Close the details window automatically when the download finishes',
       setTray: 'Closing the window keeps RDM running in the system tray (downloads continue)',
       scanTitle: 'Antivirus scan after download (optional)', scanPath: 'Scanner program path (empty = off)',
       scanArgs: 'Arguments ({file} = file path)', scanCodes: 'Exit codes meaning "threat found"',
@@ -727,6 +731,8 @@
     $('set-retries').value = s.retries;
     $('set-cat').checked = s.categorize;
     $('set-confirm').checked = s.confirmDownloads;
+    $('set-showdetails').checked = s.showDetailsOnStart !== false;
+    $('set-closedetails').checked = !!s.closeDetailsOnDone;
     $('set-tray').checked = s.closeToTray;
     $('set-scan-path').value = s.scannerPath || '';
     $('set-scan-args').value = s.scannerArgs || '{file}';
@@ -768,6 +774,8 @@
       retries: num('set-retries', 0, 50, 8),
       categorize: $('set-cat').checked,
       confirmDownloads: $('set-confirm').checked,
+      showDetailsOnStart: $('set-showdetails').checked,
+      closeDetailsOnDone: $('set-closedetails').checked,
       closeToTray: $('set-tray').checked,
       scannerPath: $('set-scan-path').value.trim(),
       scannerArgs: $('set-scan-args').value.trim() || '{file}',

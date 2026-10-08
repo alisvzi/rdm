@@ -1,6 +1,6 @@
 [package]
 name = "rdm-cli"
-version = "0.6.0"
+version = "0.6.1"
 edition = "2021"
 description = "Command-line front-end for the rdm download engine"
 

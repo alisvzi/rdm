@@ -81,6 +81,10 @@ pub struct Settings {
     pub http_mode: String,
     /// Speed schedule, one rule per line: `22:00-06:00 5000` (KiB/s, 0 = unlimited).
     pub limit_rules: String,
+    /// Open the live details window when a download is started by the user.
+    pub show_details_on_start: bool,
+    /// Close that window by itself when the download finishes.
+    pub close_details_on_done: bool,
 }
 
 impl Default for Settings {
@@ -110,6 +114,8 @@ impl Default for Settings {
             proxy_bypass: String::new(),
             http_mode: "http1".to_string(),
             limit_rules: String::new(),
+            show_details_on_start: true,
+            close_details_on_done: false,
         }
     }
 }
