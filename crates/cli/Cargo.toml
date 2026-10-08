@@ -1,12 +1,16 @@
 [package]
 name = "rdm-cli"
-version = "0.3.0"
+version = "0.6.0"
 edition = "2021"
 description = "Command-line front-end for the rdm download engine"
 
 [[bin]]
 name = "rdm"
 path = "src/main.rs"
+
+[[bin]]
+name = "rdm-bench"
+path = "src/bench.rs"
 
 [dependencies]
 rdm-core = { path = "../core" }

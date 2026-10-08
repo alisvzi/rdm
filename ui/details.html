@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="fa" dir="rtl" style="background:#060a11">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>RDM</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="dwin">
+
+<div class="ambient" aria-hidden="true"><i class="blob b1"></i><i class="blob b2"></i></div>
+
+<div class="dw">
+
+  <header class="dw-head glass">
+    <div id="h-pct" class="h-pct num">0%</div>
+    <div class="h-main">
+      <b id="h-name" class="h-name ltr"></b>
+      <span id="h-status" class="pill"></span>
+    </div>
+  </header>
+
+  <section class="dw-bar glass" aria-live="polite">
+    <div class="bigbar" id="bigbar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+      <i class="fill" id="bigfill"></i>
+    </div>
+    <div class="bar-info">
+      <span><b id="b-done" class="num"></b> / <b id="b-total" class="num"></b></span>
+      <span id="b-speed" class="num"></span>
+      <span id="b-eta" class="num"></span>
+    </div>
+  </section>
+
+  <div class="tabs" role="tablist" id="tabs">
+    <button role="tab" id="tab-status" aria-controls="p-status" aria-selected="true" data-i18n="tabStatus"></button>
+    <button role="tab" id="tab-speed" aria-controls="p-speed" aria-selected="false" tabindex="-1" data-i18n="tabSpeed"></button>
+    <button role="tab" id="tab-done" aria-controls="p-done" aria-selected="false" tabindex="-1" data-i18n="tabDone"></button>
+    <button role="tab" id="tab-info" aria-controls="p-info" aria-selected="false" tabindex="-1" data-i18n="tabInfo"></button>
+    <button role="tab" id="tab-conn" aria-controls="p-conn" aria-selected="false" tabindex="-1" data-i18n="tabConn"></button>
+  </div>
+
+  <main class="panels glass">
+
+    <!-- 1. Status -->
+    <section id="p-status" role="tabpanel" aria-labelledby="tab-status">
+      <div class="kv">
+        <div class="wide"><span data-i18n="kUrl"></span><b id="v-url" class="ltr copyable" tabindex="0"></b></div>
+        <div><span data-i18n="kStatus"></span><b id="v-status"></b></div>
+        <div><span data-i18n="kSize"></span><b id="v-size" class="num"></b></div>
+        <div><span data-i18n="kDownloaded"></span><b id="v-done" class="num"></b></div>
+        <div><span data-i18n="kRate"></span><b id="v-rate" class="num"></b></div>
+        <div><span data-i18n="kAvg"></span><b id="v-avg" class="num"></b></div>
+        <div><span data-i18n="kEta"></span><b id="v-eta" class="num"></b></div>
+        <div><span data-i18n="kElapsed"></span><b id="v-elapsed" class="num"></b></div>
+        <div><span data-i18n="kResume"></span><b id="v-resume"></b></div>
+        <div><span data-i18n="kConns"></span><b id="v-conns" class="num"></b></div>
+        <div class="wide"><span data-i18n="kPath"></span><b id="v-path" class="ltr copyable" tabindex="0"></b></div>
+        <div><span data-i18n="kCategory"></span><b id="v-cat"></b></div>
+        <div><span data-i18n="kQueue"></span><b id="v-queue"></b></div>
+        <div><span data-i18n="kPriority"></span><b id="v-priority"></b></div>
+        <div><span data-i18n="kStart"></span><b id="v-start" class="num"></b></div>
+        <div><span data-i18n="kLast"></span><b id="v-last" class="num"></b></div>
+        <div><span data-i18n="kRetries"></span><b id="v-retries" class="num"></b></div>
+        <div><span data-i18n="kSegDone"></span><b id="v-segdone" class="num"></b></div>
+        <div><span data-i18n="kSegActive"></span><b id="v-segactive" class="num"></b></div>
+        <div><span data-i18n="kSegFailed"></span><b id="v-segfailed" class="num"></b></div>
+      </div>
+      <div id="retry-box" class="notice warn" hidden></div>
+      <div id="error-box" class="notice bad" hidden></div>
+      <div class="seg-title" data-i18n="mapTitle"></div>
+      <div id="map1" class="seg-map" role="img" aria-label="download map"></div>
+    </section>
+
+    <!-- 2. Speed limiter -->
+    <section id="p-speed" role="tabpanel" aria-labelledby="tab-speed" hidden>
+      <label class="check big"><input id="lim-on" type="checkbox"> <span data-i18n="limEnable"></span></label>
+      <div class="row lim-row">
+        <input id="lim-kbps" type="number" min="1" step="1" value="1024" aria-label="KiB/s">
+        <span class="unit">KiB/s</span>
+      </div>
+      <fieldset class="radios">
+        <legend data-i18n="limApply"></legend>
+        <label class="check"><input type="radio" name="lim-scope" value="this" checked> <span data-i18n="limThis"></span></label>
+        <label class="check"><input type="radio" name="lim-scope" value="all"> <span data-i18n="limAll"></span></label>
+      </fieldset>
+      <p class="hint" data-i18n="limQueueHint"></p>
+      <div class="actions start"><button id="lim-apply" class="btn primary" data-i18n="apply"></button></div>
+      <div class="kv one">
+        <div><span data-i18n="limCurThis"></span><b id="lim-cur-this"></b></div>
+        <div><span data-i18n="limCurAll"></span><b id="lim-cur-all"></b></div>
+      </div>
+    </section>
+
+    <!-- 3. Completion -->
+    <section id="p-done" role="tabpanel" aria-labelledby="tab-done" hidden>
+      <fieldset class="radios">
+        <legend data-i18n="doneTitle"></legend>
+        <label class="check"><input type="radio" name="done" value="none"> <span data-i18n="doneNone"></span></label>
+        <label class="check"><input type="radio" name="done" value="open_file"> <span data-i18n="doneOpenFile"></span></label>
+        <label class="check"><input type="radio" name="done" value="open_folder"> <span data-i18n="doneOpenFolder"></span></label>
+        <label class="check"><input type="radio" name="done" value="shutdown"> <span data-i18n="doneShutdown"></span></label>
+        <label class="check"><input type="radio" name="done" value="hibernate"> <span data-i18n="doneHibernate"></span></label>
+      </fieldset>
+      <p class="hint" data-i18n="doneHint"></p>
+    </section>
+
+    <!-- 4. Details -->
+    <section id="p-info" role="tabpanel" aria-labelledby="tab-info" hidden>
+      <div class="kv">
+        <div><span data-i18n="kFileName"></span><b id="i-name" class="ltr"></b></div>
+        <div><span data-i18n="kFileType"></span><b id="i-ext" class="ltr"></b></div>
+        <div><span data-i18n="kContentType"></span><b id="i-ctype" class="ltr"></b></div>
+        <div><span data-i18n="kHttp"></span><b id="i-http" class="num"></b></div>
+        <div><span data-i18n="kServer"></span><b id="i-server" class="ltr"></b></div>
+        <div><span data-i18n="kAcceptRanges"></span><b id="i-ranges" class="ltr"></b></div>
+        <div><span data-i18n="kEtag"></span><b id="i-etag" class="ltr"></b></div>
+        <div><span data-i18n="kModified"></span><b id="i-modified" class="ltr"></b></div>
+        <div><span data-i18n="kCreated"></span><b id="i-created" class="num"></b></div>
+        <div><span data-i18n="kCompleted"></span><b id="i-completed" class="num"></b></div>
+        <div><span data-i18n="kLimit"></span><b id="i-limit"></b></div>
+        <div><span data-i18n="kIntegrity"></span><b id="i-integrity"></b></div>
+      </div>
+      <div id="resume-note" class="notice warn" hidden></div>
+      <p id="integrity-note" class="hint"></p>
+      <div class="kv">
+        <div><span data-i18n="kExpected"></span><b id="i-expected" class="ltr copyable"></b></div>
+        <div><span data-i18n="kActual"></span><b id="i-actual" class="ltr copyable"></b></div>
+        <div><span data-i18n="kSource"></span><b id="i-source"></b></div>
+        <div><span data-i18n="kScan"></span><b id="i-scan"></b></div>
+      </div>
+      <div class="chk-row">
+        <input id="chk-input" class="ltr" type="text" spellcheck="false" autocomplete="off" aria-labelledby="chk-label">
+        <button id="chk-verify" class="btn primary" type="button" data-i18n="verifyBtn"></button>
+        <button id="chk-scan" class="btn" type="button" data-i18n="scanBtn"></button>
+      </div>
+      <p id="chk-label" class="hint" data-i18n="chkHint"></p>
+    </section>
+
+    <!-- 5. Connections -->
+    <section id="p-conn" role="tabpanel" aria-labelledby="tab-conn" hidden>
+      <div class="seg-title" data-i18n="mapTitle"></div>
+      <div id="map2" class="seg-map tall" role="img" aria-label="download map"></div>
+      <div id="map-info" class="hint" aria-live="polite"></div>
+      <div class="tablewrap">
+        <table class="ctable">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th data-i18n="cDown"></th>
+              <th data-i18n="cRange"></th>
+              <th class="c-p" data-i18n="cProgress"></th>
+              <th data-i18n="cSpeed"></th>
+              <th data-i18n="cStatus"></th>
+              <th data-i18n="cRetry"></th>
+              <th data-i18n="cHttp"></th>
+            </tr>
+          </thead>
+          <tbody id="ctbody"></tbody>
+        </table>
+        <p id="no-conns" class="hint" data-i18n="noConns" hidden></p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="dw-foot">
+    <button id="f-toggle" class="btn primary"></button>
+    <button id="f-file" class="btn" data-i18n="openFile"></button>
+    <button id="f-folder" class="btn" data-i18n="openFolder"></button>
+    <span class="grow"></span>
+    <button id="f-close" class="btn" data-i18n="close"></button>
+  </footer>
+</div>
+
+<div id="tip" class="tip" role="tooltip" hidden></div>
+<div id="toast" class="toast" hidden></div>
+
+<script src="details.js"></script>
+</body>
+</html>

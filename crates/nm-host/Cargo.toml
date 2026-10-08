@@ -1,0 +1,8 @@
+[package]
+name = "rdm-nm"
+version = "0.6.0"
+edition = "2021"
+description = "Native Messaging host: lets the browser extension talk to RDM without a network request"
+
+[dependencies]
+serde_json = "1"

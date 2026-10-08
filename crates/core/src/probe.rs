@@ -6,6 +6,7 @@ use std::time::Duration;
 pub const DEFAULT_UA: &str =
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36";
 
+#[derive(Clone)]
 pub struct Probe {
     /// Final URL after redirects (saves a redirect round-trip per chunk).
     pub url: Url,
@@ -15,19 +16,78 @@ pub struct Probe {
     pub filename: String,
     /// ETag or Last-Modified, used to make sure a resumed file is still the same.
     pub validator: Option<String>,
+    /// HTTP status of the probe answer (206 or 200).
+    pub http_status: u16,
+    pub content_type: Option<String>,
+    pub etag: Option<String>,
+    pub last_modified: Option<String>,
+    pub accept_ranges: Option<String>,
+    pub server: Option<String>,
+    /// Whole-file checksum announced by the server, stored as "sha256:<hex>".
+    pub digest: Option<String>,
+}
+
+/// How requests reach the internet.
+#[derive(Clone, Debug, Default)]
+pub struct ProxyConfig {
+    /// "system" (default) | "none" | "manual"
+    pub mode: String,
+    /// http://host:port, https://host:port, socks5://host:port or socks5h://host:port
+    pub url: String,
+    pub user: String,
+    pub password: String,
+    /// Hosts that skip the proxy, comma separated ("localhost, *.example.com, 10.0.0.0/8").
+    pub bypass: String,
+    /// Let the server negotiate HTTP/2 (otherwise HTTP/1.1 only, best for many parallel connections).
+    pub http_auto: bool,
+}
+
+/// Checks a proxy address typed by the user.
+pub fn validate_proxy_url(url: &str) -> Result<()> {
+    let u = Url::parse(url.trim()).map_err(|e| anyhow::anyhow!("invalid proxy address: {e}"))?;
+    if !matches!(u.scheme(), "http" | "https" | "socks5" | "socks5h") {
+        bail!("proxy address must start with http://, https://, socks5:// or socks5h://");
+    }
+    if u.host_str().map_or(true, |h| h.is_empty()) {
+        bail!("proxy address has no host name");
+    }
+    Ok(())
+}
+
+pub fn build_client(user_agent: &str) -> Result<Client> {
+    build_client_with(user_agent, &ProxyConfig::default())
 }
 
 /// HTTP/1.1 only: HTTP/2 would multiplex every request over ONE TCP connection,
 /// which defeats the purpose of opening many parallel connections.
-pub fn build_client(user_agent: &str) -> Result<Client> {
-    Ok(Client::builder()
+pub fn build_client_with(user_agent: &str, proxy: &ProxyConfig) -> Result<Client> {
+    let mut b = Client::builder()
         .user_agent(user_agent)
-        .http1_only()
         .tcp_nodelay(true)
         .connect_timeout(Duration::from_secs(15))
         .read_timeout(Duration::from_secs(30))
-        .pool_max_idle_per_host(64)
-        .build()?)
+        .pool_max_idle_per_host(64);
+    b = if proxy.http_auto {
+        b.http2_adaptive_window(true)
+    } else {
+        b.http1_only()
+    };
+    match proxy.mode.as_str() {
+        "none" => b = b.no_proxy(),
+        "manual" => {
+            validate_proxy_url(&proxy.url)?;
+            let mut p = reqwest::Proxy::all(proxy.url.trim())?;
+            if !proxy.user.is_empty() {
+                p = p.basic_auth(&proxy.user, &proxy.password);
+            }
+            if !proxy.bypass.trim().is_empty() {
+                p = p.no_proxy(reqwest::NoProxy::from_string(proxy.bypass.trim()));
+            }
+            b = b.proxy(p);
+        }
+        _ => {} // "system": reqwest reads the Windows/environment proxy by itself
+    }
+    Ok(b.build()?)
 }
 
 /// Asks the server for the first byte only. This works on servers that reject HEAD
@@ -75,12 +135,44 @@ pub async fn probe(client: &Client, url: &str, headers: &header::HeaderMap) -> R
         .filter(|n| !n.is_empty())
         .unwrap_or_else(|| "download.bin".to_string());
 
+    let text = |name: header::HeaderName| {
+        h.get(name)
+            .and_then(|v| v.to_str().ok())
+            .map(|s| s.to_string())
+    };
+    // Repr-Digest (RFC 9530) describes the whole file. Content-Digest only describes this
+    // response body, so it is usable only when the answer was a complete 200 response.
+    let name_repr = header::HeaderName::from_static("repr-digest");
+    let name_content = header::HeaderName::from_static("content-digest");
+    let digest = text(name_repr)
+        .or_else(|| {
+            if status == StatusCode::OK {
+                text(name_content)
+            } else {
+                None
+            }
+        })
+        .and_then(|v| crate::integrity::parse_digest_header(&v))
+        .map(|(a, hex)| crate::integrity::format_hash(a, &hex));
+    let etag = text(header::ETAG);
+    let last_modified = text(header::LAST_MODIFIED);
+    let content_type = text(header::CONTENT_TYPE);
+    let accept_ranges = text(header::ACCEPT_RANGES);
+    let server = text(header::SERVER);
+
     Ok(Probe {
         url: final_url,
         total,
         ranges,
         filename,
         validator,
+        http_status: status.as_u16(),
+        content_type,
+        etag,
+        last_modified,
+        accept_ranges,
+        server,
+        digest,
     })
 }
 

@@ -19,6 +19,7 @@
     <button id="btn-add" class="tbtn primary"><i data-icon="plus"></i><span data-i18n="add"></span></button>
     <button id="btn-resume" class="tbtn"><i data-icon="play"></i><span data-i18n="resume"></span></button>
     <button id="btn-pause" class="tbtn"><i data-icon="pause"></i><span data-i18n="pause"></span></button>
+    <button id="btn-details" class="tbtn"><i data-icon="info"></i><span data-i18n="detailsBtn"></span></button>
     <span class="sep"></span>
     <button id="btn-resume-all" class="tbtn"><i data-icon="playall"></i><span data-i18n="resumeAll"></span></button>
     <button id="btn-pause-all" class="tbtn"><i data-icon="pauseall"></i><span data-i18n="pauseAll"></span></button>
@@ -26,6 +27,7 @@
     <button id="btn-delete" class="tbtn"><i data-icon="trash"></i><span data-i18n="delete"></span></button>
     <button id="btn-clear" class="tbtn"><i data-icon="check"></i><span data-i18n="clearDone"></span></button>
     <span class="grow"></span>
+    <button id="btn-queues" class="tbtn"><i data-icon="clock"></i><span data-i18n="queuesBtn"></span></button>
     <button id="btn-settings" class="tbtn"><i data-icon="sliders"></i><span data-i18n="settings"></span></button>
   </header>
 
@@ -33,8 +35,25 @@
     <nav id="side" class="sidebar glass"></nav>
 
     <main class="center">
+      <div class="listbar glass">
+        <input id="search" type="search" data-i18n-placeholder="search" autocomplete="off" spellcheck="false">
+        <label class="sortlbl" for="sort-key" data-i18n="sortBy"></label>
+        <select id="sort-key">
+          <option value="added" data-i18n="sort_added"></option>
+          <option value="name" data-i18n="sort_name"></option>
+          <option value="size" data-i18n="sort_size"></option>
+          <option value="downloaded" data-i18n="sort_downloaded"></option>
+          <option value="progress" data-i18n="sort_progress"></option>
+          <option value="speed" data-i18n="sort_speed"></option>
+          <option value="eta" data-i18n="sort_eta"></option>
+          <option value="status" data-i18n="sort_status"></option>
+          <option value="completed" data-i18n="sort_completed"></option>
+        </select>
+        <button id="sort-dir" class="btn" type="button" data-i18n-aria="sortDir">&darr;</button>
+      </div>
+
       <section class="list glass">
-        <table>
+        <table role="grid" aria-multiselectable="true" data-i18n-aria="listLabel">
           <thead>
             <tr>
               <th class="c-name" data-i18n="colName"></th>
@@ -93,7 +112,10 @@
   <button id="banner-cancel" class="btn danger" data-i18n="cancel"></button>
 </div>
 
+<div id="ctx" class="ctx" role="menu" hidden></div>
+
 <div id="toast" class="toast" hidden></div>
+<div id="live" class="sr-only" role="status" aria-live="polite"></div>
 
 <!-- Add dialog -->
 <dialog id="dlg-add" class="glass-dlg">
@@ -132,7 +154,12 @@
   <div class="grid2">
     <div>
       <label for="set-conn" data-i18n="setConn"></label>
-      <input id="set-conn" type="number" min="1" max="64">
+      <select id="set-conn">
+        <option value="0" data-i18n="connAuto"></option>
+        <option value="1">1</option><option value="2">2</option><option value="4">4</option>
+        <option value="8">8</option><option value="12">12</option><option value="16">16</option>
+        <option value="24">24</option><option value="32">32</option>
+      </select>
     </div>
     <div>
       <label for="set-conc" data-i18n="setConc"></label>
@@ -152,24 +179,59 @@
   <label class="check"><input id="set-confirm" type="checkbox"> <span data-i18n="setConfirm"></span></label>
   <label class="check"><input id="set-tray" type="checkbox"> <span data-i18n="setTray"></span></label>
 
-  <h3 data-i18n="schedTitle"></h3>
-  <label class="check"><input id="set-sched" type="checkbox"> <span data-i18n="schedEnable"></span></label>
+  <h3 data-i18n="scanTitle"></h3>
+  <label for="set-scan-path" data-i18n="scanPath"></label>
+  <input id="set-scan-path" class="ltr" type="text" spellcheck="false" placeholder="C:\Program Files\Windows Defender\MpCmdRun.exe">
   <div class="grid2">
     <div>
-      <label for="set-sstart" data-i18n="schedStart"></label>
-      <input id="set-sstart" type="time">
+      <label for="set-scan-args" data-i18n="scanArgs"></label>
+      <input id="set-scan-args" class="ltr" type="text" spellcheck="false">
     </div>
     <div>
-      <label for="set-sstop" data-i18n="schedStop"></label>
-      <input id="set-sstop" type="time">
+      <label for="set-scan-codes" data-i18n="scanCodes"></label>
+      <input id="set-scan-codes" class="ltr" type="text" spellcheck="false">
     </div>
   </div>
-  <label for="set-after" data-i18n="schedAfter"></label>
-  <select id="set-after">
-    <option value="none" data-i18n="afterNone"></option>
-    <option value="shutdown" data-i18n="afterShutdown"></option>
-    <option value="hibernate" data-i18n="afterHibernate"></option>
+  <p class="hint" data-i18n="scanHint"></p>
+
+  <h3 data-i18n="proxyTitle"></h3>
+  <label for="set-proxy-mode" data-i18n="proxyMode"></label>
+  <select id="set-proxy-mode">
+    <option value="system" data-i18n="proxySystem"></option>
+    <option value="none" data-i18n="proxyNone"></option>
+    <option value="manual" data-i18n="proxyManual"></option>
   </select>
+  <div id="proxy-manual">
+    <label for="set-proxy-url" data-i18n="proxyUrl"></label>
+    <input id="set-proxy-url" class="ltr" type="text" spellcheck="false" autocomplete="off" placeholder="socks5://127.0.0.1:1080">
+    <div class="grid2">
+      <div>
+        <label for="set-proxy-user" data-i18n="proxyUser"></label>
+        <input id="set-proxy-user" class="ltr" type="text" spellcheck="false" autocomplete="off">
+      </div>
+      <div>
+        <label for="set-proxy-pass" data-i18n="proxyPass"></label>
+        <input id="set-proxy-pass" class="ltr" type="password" autocomplete="new-password">
+      </div>
+    </div>
+    <label for="set-proxy-bypass" data-i18n="proxyBypass"></label>
+    <input id="set-proxy-bypass" class="ltr" type="text" spellcheck="false" placeholder="localhost, *.example.com, 10.0.0.0/8">
+  </div>
+  <p class="hint" data-i18n="proxyHint"></p>
+  <div class="row">
+    <button id="open-queues" type="button" class="btn" data-i18n="queuesBtn"></button>
+    <button id="forget-hosts" type="button" class="btn" data-i18n="forgetHosts"></button>
+  </div>
+
+  <h3 data-i18n="speedTitle"></h3>
+  <label for="set-http" data-i18n="httpMode"></label>
+  <select id="set-http">
+    <option value="http1" data-i18n="httpOne"></option>
+    <option value="auto" data-i18n="httpAuto"></option>
+  </select>
+  <label for="set-rules" data-i18n="limitRules"></label>
+  <textarea id="set-rules" rows="3" class="ltr" spellcheck="false" placeholder="22:00-06:00 0&#10;08:00-17:00 500"></textarea>
+  <p class="hint" data-i18n="limitRulesHint"></p>
 
   <h3 data-i18n="intTitle"></h3>
   <p class="hint" data-i18n="intHint"></p>
@@ -202,6 +264,102 @@
   <div class="actions">
     <button id="del-cancel" class="btn" data-i18n="cancel"></button>
     <button id="del-ok" class="btn danger" data-i18n="delete"></button>
+  </div>
+</dialog>
+
+<!-- Queues dialog -->
+<dialog id="dlg-queues" class="glass-dlg wide">
+  <h2 data-i18n="queuesTitle"></h2>
+  <div class="q-layout">
+    <ul id="q-list" class="q-list" role="listbox" data-i18n-aria="queuesTitle"></ul>
+    <div class="q-form">
+      <label for="q-name" data-i18n="qName"></label>
+      <input id="q-name" type="text" maxlength="40" autocomplete="off">
+      <label class="check"><input id="q-enabled" type="checkbox"> <span data-i18n="qEnabled"></span></label>
+      <div class="grid2">
+        <div>
+          <label for="q-priority" data-i18n="qPriority"></label>
+          <input id="q-priority" type="number" min="-100" max="100">
+        </div>
+        <div>
+          <label for="q-max" data-i18n="qMax"></label>
+          <input id="q-max" type="number" min="1" max="16">
+        </div>
+      </div>
+      <label for="q-limit" data-i18n="qLimit"></label>
+      <input id="q-limit" type="number" min="0">
+      <h3 data-i18n="qSched"></h3>
+      <label class="check"><input id="q-sched" type="checkbox"> <span data-i18n="qSchedOn"></span></label>
+      <div class="grid2">
+        <div>
+          <label for="q-start" data-i18n="qStart"></label>
+          <input id="q-start" type="time">
+        </div>
+        <div>
+          <label for="q-stop" data-i18n="qStop"></label>
+          <input id="q-stop" type="time">
+        </div>
+      </div>
+      <label for="q-after" data-i18n="qAfter"></label>
+      <select id="q-after">
+        <option value="none" data-i18n="afterNone"></option>
+        <option value="shutdown" data-i18n="afterShutdown"></option>
+        <option value="hibernate" data-i18n="afterHibernate"></option>
+      </select>
+      <label class="check"><input id="q-onlyok" type="checkbox"> <span data-i18n="qOnlyOk"></span></label>
+      <div class="row" style="margin-top:14px">
+        <button id="q-startnow" type="button" class="btn" data-i18n="qStartNow"></button>
+        <button id="q-stopnow" type="button" class="btn" data-i18n="qStopNow"></button>
+      </div>
+    </div>
+  </div>
+  <pre id="q-error" class="error" hidden></pre>
+  <div class="actions">
+    <button id="q-new" class="btn" data-i18n="qNew"></button>
+    <button id="q-delete" class="btn danger" data-i18n="qDelete"></button>
+    <button id="q-save" class="btn primary" data-i18n="save"></button>
+    <button id="q-close" class="btn" data-i18n="closeBtn"></button>
+  </div>
+</dialog>
+
+<!-- Properties dialog -->
+<dialog id="dlg-props" class="glass-dlg">
+  <h2 data-i18n="propsTitle"></h2>
+  <label for="pr-name" data-i18n="prName"></label>
+  <input id="pr-name" class="ltr" type="text" readonly>
+  <label for="pr-url" data-i18n="prUrl"></label>
+  <input id="pr-url" class="ltr" type="text" readonly>
+  <label for="pr-path" data-i18n="prPath"></label>
+  <input id="pr-path" class="ltr" type="text" readonly>
+  <div class="grid2">
+    <div>
+      <label for="pr-queue" data-i18n="prQueue"></label>
+      <select id="pr-queue"></select>
+    </div>
+    <div>
+      <label for="pr-done" data-i18n="prDone"></label>
+      <select id="pr-done">
+        <option value="none" data-i18n="afterNone"></option>
+        <option value="open_file" data-i18n="prOpenFile"></option>
+        <option value="open_folder" data-i18n="prOpenFolder"></option>
+        <option value="shutdown" data-i18n="afterShutdown"></option>
+        <option value="hibernate" data-i18n="afterHibernate"></option>
+      </select>
+    </div>
+  </div>
+  <label for="pr-priority" data-i18n="prPriority"></label>
+  <select id="pr-priority">
+    <option value="1" data-i18n="prioHigh"></option>
+    <option value="0" data-i18n="prioNormal"></option>
+    <option value="-1" data-i18n="prioLow"></option>
+  </select>
+  <label for="pr-limit" data-i18n="prLimit"></label>
+  <input id="pr-limit" type="number" min="0">
+  <p id="pr-note" class="hint" hidden></p>
+  <pre id="pr-error" class="error" hidden></pre>
+  <div class="actions">
+    <button id="pr-cancel" class="btn" data-i18n="cancel"></button>
+    <button id="pr-ok" class="btn primary" data-i18n="save"></button>
   </div>
 </dialog>
 

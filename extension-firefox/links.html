@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>دانلود همه‌ی لینک‌ها — RDM</title>
+  <link rel="stylesheet" href="popup.css">
+  <link rel="stylesheet" href="links.css">
+</head>
+<body>
+  <header>
+    <img src="icons/48.png" width="26" height="26" alt="">
+    <strong>دانلود همه‌ی لینک‌ها</strong>
+    <span id="count" class="status" role="status" aria-live="polite"></span>
+  </header>
+  <main>
+    <p id="page" class="hint ltr"></p>
+    <div class="bar">
+      <input id="filter" type="text" placeholder="فیلتر نام یا آدرس…" aria-label="فیلتر" autocomplete="off">
+      <input id="regex" type="text" placeholder="عبارت منظم (اختیاری)، مثلاً \.(pdf|zip)$" aria-label="عبارت منظم" autocomplete="off">
+    </div>
+    <div id="cats" class="chips" role="group" aria-label="نوع فایل"></div>
+    <label class="row"><input type="checkbox" id="show-all"> <span>نمایش لینک‌های بدون پسوند فایل هم (صفحه‌های وب)</span></label>
+    <div class="bar">
+      <button id="sel-all" type="button" class="ghost">انتخاب همه‌ی نمایش‌داده‌شده‌ها</button>
+      <button id="sel-none" type="button" class="ghost">هیچ‌کدام</button>
+    </div>
+    <ul id="list" aria-label="لینک‌ها"></ul>
+    <p id="empty" class="hint" hidden>لینکی با این فیلتر پیدا نشد.</p>
+    <div class="bar end">
+      <span id="result" class="hint" role="status" aria-live="polite"></span>
+      <button id="send" type="button">ارسال انتخاب‌شده‌ها به RDM</button>
+    </div>
+  </main>
+  <script src="common.js"></script>
+  <script src="links.js"></script>
+</body>
+</html>

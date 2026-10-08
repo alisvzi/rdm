@@ -1,16 +1,23 @@
 [package]
 name = "rdm-core"
-version = "0.3.0"
+version = "0.6.0"
 edition = "2021"
 description = "Download engine and download manager logic (no UI)"
 
 [dependencies]
-tokio = { version = "1", features = ["rt", "fs", "io-util", "time"] }
+tokio = { version = "1", features = ["rt", "fs", "io-util", "time", "process"] }
 # Default features = native TLS (SChannel on Windows) + system proxy support.
-reqwest = { version = "0.12", features = ["stream"] }
+reqwest = { version = "0.12", features = ["stream", "socks"] }
 futures-util = "0.3"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 anyhow = "1"
 percent-encoding = "2"
 getrandom = "0.2"
+sha2 = "0.10"
+
+[target.'cfg(windows)'.dependencies]
+windows-sys = { version = "0.59", features = ["Win32_Foundation", "Win32_Security_Cryptography", "Win32_Storage_FileSystem"] }
+
+[dev-dependencies]
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "net", "io-util", "time"] }

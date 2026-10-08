@@ -11,7 +11,11 @@ use std::sync::Arc;
 use std::time::{Duration, Instant};
 
 #[derive(Parser)]
-#[command(name = "rdm", version, about = "Fast multi-connection download manager")]
+#[command(
+    name = "rdm",
+    version,
+    about = "Fast multi-connection download manager"
+)]
 struct Args {
     /// URL to download (http:// or https://)
     url: String,
@@ -120,7 +124,11 @@ async fn main() -> Result<()> {
     }
     eprintln!(
         "Resume : {}",
-        if info.ranges { "supported" } else { "not supported" }
+        if info.ranges {
+            "supported"
+        } else {
+            "not supported"
+        }
     );
 
     let out = match &args.output {
@@ -161,8 +169,10 @@ async fn main() -> Result<()> {
         None => {
             let pb = ProgressBar::new_spinner();
             pb.set_style(
-                ProgressStyle::with_template("{spinner} [{elapsed_precise}] {bytes} ({bytes_per_sec})")
-                    .unwrap(),
+                ProgressStyle::with_template(
+                    "{spinner} [{elapsed_precise}] {bytes} ({bytes_per_sec})",
+                )
+                .unwrap(),
             );
             pb
         }
@@ -188,6 +198,9 @@ async fn main() -> Result<()> {
         retries: args.retries,
         headers,
         limiter: Arc::new(Limiter::new(limit)),
+        item_limiter: Arc::new(Limiter::new(0)),
+        use_if_range: true,
+        host_cap: 0,
         progress: progress.clone(),
         stop,
     })

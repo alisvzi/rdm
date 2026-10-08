@@ -64,7 +64,14 @@ api.webRequest.onHeadersReceived.addListener(
       return (f && f.value) || '';
     };
     const type = h('content-type').toLowerCase();
-    if (/mpegurl|dash\+xml/.test(type)) return; // streaming playlists are not supported
+    if (/dash\+xml/.test(type)) return; // DASH is not supported
+    if (/mpegurl/.test(type) || /\.m3u8(\?|#|$)/i.test(d.url)) {
+      // Plain HLS playlists can be downloaded (encrypted ones are refused by RDM with a message).
+      addMedia(d.tabId, { url: d.url, type: 'application/x-mpegurl', size: 0 }).then((list) => {
+        try { actionApi.setBadgeText({ tabId: d.tabId, text: String(list.length) }); } catch (_) {}
+      });
+      return;
+    }
     const looksLikeMedia =
       type.startsWith('video/') ||
       type.startsWith('audio/') ||

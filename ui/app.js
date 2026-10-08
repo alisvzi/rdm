@@ -22,6 +22,7 @@
       cat_Video: 'ویدیو', cat_Programs: 'برنامه‌ها', cat_General: 'عمومی',
       colName: 'نام فایل', colSize: 'حجم', colProgress: 'پیشرفت', colSpeed: 'سرعت',
       colEta: 'زمان باقی‌مانده', colStatus: 'وضعیت', colAdded: 'زمان افزودن',
+      verifyStarted: 'بررسی شروع شد.', badHash: 'هش نامطابق', badScan: 'تهدید',
       st_queued: 'در صف', st_downloading: 'در حال دانلود', st_paused: 'متوقف',
       st_completed: 'تمام شد', st_error: 'خطا', st_pausing: 'در حال توقف…',
       dSegments: 'نقشه‌ی دانلود (بخش‌هایی که با اتصال‌های هم‌زمان گرفته می‌شوند)',
@@ -33,13 +34,39 @@
       adding: 'در حال بررسی لینک‌ها…',
       settingsTitle: 'تنظیمات', setDir: 'پوشه‌ی پیش‌فرض دانلود',
       lastDirLbl: 'آخرین پوشه‌ی انتخابی (دانلود بعدی همین‌جا می‌رود)', clear: 'پاک‌کردن',
-      setConn: 'اتصال برای هر دانلود (۱ تا ۶۴)',
+      setConn: 'تعداد اتصال برای هر دانلود',
       setConc: 'دانلود هم‌زمان (بقیه در صف)',
       setLimit: 'محدودیت سرعت کل (KB/s، صفر = بدون محدودیت)',
       setRetries: 'تعداد تلاش مجدد',
       setCategorize: 'فایل‌ها در زیرپوشه‌ی دسته‌بندی (ویدیو، موسیقی، …) ذخیره شوند',
       setConfirm: 'قبل از هر دانلود مرورگر، پنجره‌ی تأیید (مثل IDM) نشان داده شود',
       setTray: 'با بستن پنجره، برنامه در سینی سیستم بماند (دانلودها ادامه پیدا می‌کنند)',
+      scanTitle: 'اسکن آنتی‌ویروس بعد از دانلود (اختیاری)', scanPath: 'مسیر برنامه‌ی اسکنر (خالی = خاموش)',
+      scanArgs: 'آرگومان‌ها ({file} جای مسیر فایل)', scanCodes: 'کدهای خروج «تهدید پیدا شد»',
+      scanHint: 'مثال Windows Defender: آرگومان‌ها «-Scan -ScanType 3 -File {file} -DisableRemediation» و کد تهدید 2. اگر فایل هش نامعتبر یا تهدید داشته باشد، عملیات بعد از اتمام (باز کردن فایل، خاموشی) اجرا نمی‌شود.',
+      verifyHash: 'بررسی صحت فایل (SHA-256)', scanAgain: 'اسکن آنتی‌ویروس',
+      queuesBtn: 'صف‌ها', queuesTitle: 'مدیریت صف‌ها', qName: 'نام صف',
+      qEnabled: 'صف فعال باشد (صف غیرفعال هیچ دانلودی را شروع نمی‌کند)', qPriority: 'اولویت (عدد بزرگ‌تر زودتر)',
+      qMax: 'دانلود هم‌زمان در این صف', qLimit: 'محدودیت سرعت صف (KiB/s، ۰ = بدون محدودیت)',
+      qSched: 'زمان‌بندی این صف', qSchedOn: 'زمان‌بندی فعال باشد', qStart: 'ساعت شروع', qStop: 'ساعت توقف',
+      qAfter: 'بعد از پایان اجرای زمان‌بندی‌شده', qOnlyOk: 'فقط اگر همه‌ی دانلودها موفق بودند (بدون خطا و بدون مشکل هش یا اسکن)',
+      qNew: 'صف جدید', qDelete: 'حذف صف', qStartNow: 'شروع صف', qStopNow: 'توقف صف', qSaved: 'ذخیره شد.',
+      qMainNoDelete: 'صف اصلی حذف نمی‌شود.', qNewName: 'صف جدید', tQueues: 'صف‌ها', closeBtn: 'بستن', qDownloads: 'دانلود',
+      prPriority: 'اولویت', prioHigh: 'بالا', prioNormal: 'معمولی', prioLow: 'پایین',
+      propsTitle: 'مشخصات دانلود', prName: 'نام فایل', prUrl: 'آدرس', prPath: 'مسیر ذخیره', prQueue: 'صف',
+      prLimit: 'محدودیت سرعت این دانلود (KiB/s، ۰ = بدون محدودیت)', prDone: 'بعد از اتمام',
+      prOpenFile: 'باز کردن فایل', prOpenFolder: 'باز کردن پوشه',
+      prRunning: 'برای تغییر صف، ابتدا دانلود را متوقف کنید.', properties: 'مشخصات',
+      proxyTitle: 'پروکسی', proxyMode: 'حالت پروکسی', proxySystem: 'پروکسی سیستم', proxyNone: 'بدون پروکسی', proxyManual: 'دستی',
+      proxyUrl: 'آدرس پروکسی (http://, https://, socks5://)', proxyUser: 'نام کاربری (اختیاری)',
+      proxyPass: 'رمز عبور (خالی = بدون تغییر)', proxyBypass: 'استثناها (با ویرگول جدا کنید)',
+      proxyHint: 'تغییر پروکسی روی دانلودهای جدید و ادامه‌ی دانلودها اثر می‌کند. دانلودهای در حال اجرا تا توقف و ادامه همان اتصال قبلی را دارند. رمز پروکسی رمزشده با DPAPI ذخیره می‌شود.',
+      forgetHosts: 'فراموش کردن محدودیت اتصال سایت‌ها', hostsCleared: 'پاک شد.',
+      listLabel: 'فهرست دانلودها', speedTitle: 'سرعت و پروتکل', httpMode: 'پروتکل HTTP',
+      httpOne: 'HTTP/1.1 با چند اتصال (پیش‌فرض، بهترین برای دانلود چندبخشی)', httpAuto: 'خودکار (اجازه‌ی HTTP/2 به سرور)',
+      limitRules: 'برنامه‌ی سرعت (هر خط: ساعت-ساعت سرعت KiB/s، ۰ = بدون محدودیت)',
+      limitRulesHint: 'مثال: «22:00-06:00 0» یعنی شب‌ها بدون محدودیت و «08:00-17:00 500» یعنی روز حداکثر ۵۰۰ KiB/s. خارج از این بازه‌ها، محدودیت عادی تنظیمات اعمال می‌شود. HTTP/3 پشتیبانی نمی‌شود.',
+      aDone: 'دانلود کامل شد', aError: 'خطا در دانلود', aBadHash: 'هش فایل نمی‌خواند', aThreat: 'اسکنر تهدید پیدا کرد',
       schedTitle: 'زمان‌بندی', schedEnable: 'زمان‌بندی فعال باشد',
       schedStart: 'شروع دانلودها در ساعت', schedStop: 'توقف دانلودها در ساعت',
       schedAfter: 'بعد از پایان دانلودهای زمان‌بندی‌شده',
@@ -57,6 +84,12 @@
       openFile: 'باز کردن فایل', openFolder: 'نمایش در پوشه',
       sbSpeed: 'سرعت کل', sbActive: 'فعال', sbTotal: 'همه',
       empty: 'هنوز دانلودی ندارید. روی «افزودن لینک» بزنید.',
+      detailsBtn: 'جزئیات', search: 'جستجو در نام، آدرس، دسته و وضعیت…', sortBy: 'مرتب‌سازی',
+      sortDir: 'جهت مرتب‌سازی', sort_added: 'تاریخ افزودن', sort_name: 'نام', sort_size: 'حجم',
+      sort_downloaded: 'دریافت‌شده', sort_progress: 'پیشرفت', sort_speed: 'سرعت',
+      sort_eta: 'زمان باقی‌مانده', sort_status: 'وضعیت', sort_completed: 'تاریخ اتمام',
+      retry: 'تلاش دوباره', restart: 'شروع مجدد', copyUrl: 'کپی آدرس', copyPath: 'کپی مسیر فایل',
+      removeFromList: 'حذف از لیست', deleteFile: 'حذف فایل دانلودشده', connAuto: 'خودکار (هوشمند)',
     },
     en: {
       add: 'Add URL', resume: 'Resume', pause: 'Pause', delete: 'Delete',
@@ -68,6 +101,7 @@
       cat_Video: 'Video', cat_Programs: 'Programs', cat_General: 'General',
       colName: 'File name', colSize: 'Size', colProgress: 'Progress', colSpeed: 'Speed',
       colEta: 'Time left', colStatus: 'Status', colAdded: 'Added',
+      verifyStarted: 'Check started.', badHash: 'hash mismatch', badScan: 'threat',
       st_queued: 'Queued', st_downloading: 'Downloading', st_paused: 'Paused',
       st_completed: 'Completed', st_error: 'Error', st_pausing: 'Pausing…',
       dSegments: 'Download map (parts fetched by parallel connections)',
@@ -79,13 +113,39 @@
       adding: 'Checking links…',
       settingsTitle: 'Settings', setDir: 'Default download folder',
       lastDirLbl: 'Last chosen folder (the next download goes here)', clear: 'Clear',
-      setConn: 'Connections per download (1-64)',
+      setConn: 'Connections per download',
       setConc: 'Simultaneous downloads (rest wait in queue)',
       setLimit: 'Total speed limit (KB/s, 0 = unlimited)',
       setRetries: 'Retries per chunk',
       setCategorize: 'Sort files into sub-folders (Video, Music, ...)',
       setConfirm: 'Show a confirmation window (like IDM) before each browser download',
       setTray: 'Closing the window keeps RDM running in the system tray (downloads continue)',
+      scanTitle: 'Antivirus scan after download (optional)', scanPath: 'Scanner program path (empty = off)',
+      scanArgs: 'Arguments ({file} = file path)', scanCodes: 'Exit codes meaning "threat found"',
+      scanHint: 'Windows Defender example: arguments "-Scan -ScanType 3 -File {file} -DisableRemediation", threat code 2. If the checksum does not match or a threat is found, completion actions (open file, shutdown) are skipped.',
+      verifyHash: 'Verify file integrity (SHA-256)', scanAgain: 'Scan with antivirus',
+      queuesBtn: 'Queues', queuesTitle: 'Manage queues', qName: 'Queue name',
+      qEnabled: 'Queue enabled (a disabled queue starts nothing)', qPriority: 'Priority (higher starts first)',
+      qMax: 'Simultaneous downloads in this queue', qLimit: 'Queue speed limit (KiB/s, 0 = unlimited)',
+      qSched: 'Schedule of this queue', qSchedOn: 'Schedule enabled', qStart: 'Start time', qStop: 'Stop time',
+      qAfter: 'After a scheduled run finishes', qOnlyOk: 'Only if every download succeeded (no errors, no checksum or scan problems)',
+      qNew: 'New queue', qDelete: 'Delete queue', qStartNow: 'Start queue', qStopNow: 'Stop queue', qSaved: 'Saved.',
+      qMainNoDelete: 'The main queue cannot be deleted.', qNewName: 'New queue', tQueues: 'Queues', closeBtn: 'Close', qDownloads: 'downloads',
+      prPriority: 'Priority', prioHigh: 'High', prioNormal: 'Normal', prioLow: 'Low',
+      propsTitle: 'Download properties', prName: 'File name', prUrl: 'URL', prPath: 'Save path', prQueue: 'Queue',
+      prLimit: 'Speed limit of this download (KiB/s, 0 = unlimited)', prDone: 'When finished',
+      prOpenFile: 'Open the file', prOpenFolder: 'Open the folder',
+      prRunning: 'Pause the download first to move it to another queue.', properties: 'Properties',
+      proxyTitle: 'Proxy', proxyMode: 'Proxy mode', proxySystem: 'System proxy', proxyNone: 'No proxy', proxyManual: 'Manual',
+      proxyUrl: 'Proxy address (http://, https://, socks5://)', proxyUser: 'User name (optional)',
+      proxyPass: 'Password (empty = unchanged)', proxyBypass: 'Bypass list (comma separated)',
+      proxyHint: 'A proxy change applies to new downloads and to resumed ones. Running downloads keep their old connection until paused and resumed. The proxy password is stored encrypted with DPAPI.',
+      forgetHosts: 'Forget per-site connection limits', hostsCleared: 'Cleared.',
+      listLabel: 'Download list', speedTitle: 'Speed and protocol', httpMode: 'HTTP protocol',
+      httpOne: 'HTTP/1.1 with many connections (default, best for segmented downloads)', httpAuto: 'Automatic (let the server use HTTP/2)',
+      limitRules: 'Speed schedule (one per line: HH:MM-HH:MM KiB/s, 0 = unlimited)',
+      limitRulesHint: 'Example: "22:00-06:00 0" = unlimited at night, "08:00-17:00 500" = at most 500 KiB/s by day. Outside the windows the normal limit from Settings applies. HTTP/3 is not supported.',
+      aDone: 'Download completed', aError: 'Download failed', aBadHash: 'File hash does not match', aThreat: 'Scanner found a threat',
       schedTitle: 'Scheduler', schedEnable: 'Enable scheduler',
       schedStart: 'Start downloads at', schedStop: 'Stop downloads at',
       schedAfter: 'When scheduled downloads finish',
@@ -103,6 +163,12 @@
       openFile: 'Open file', openFolder: 'Show in folder',
       sbSpeed: 'Total speed', sbActive: 'Active', sbTotal: 'Total',
       empty: 'No downloads yet. Click "Add URL" to start.',
+      detailsBtn: 'Details', search: 'Search name, URL, category, status…', sortBy: 'Sort by',
+      sortDir: 'Sort direction', sort_added: 'Date added', sort_name: 'Name', sort_size: 'Size',
+      sort_downloaded: 'Downloaded', sort_progress: 'Progress', sort_speed: 'Speed',
+      sort_eta: 'Time left', sort_status: 'Status', sort_completed: 'Date completed',
+      retry: 'Retry', restart: 'Restart', copyUrl: 'Copy URL', copyPath: 'Copy file path',
+      removeFromList: 'Delete from list', deleteFile: 'Delete downloaded file', connAuto: 'Auto (adaptive)',
     },
   };
 
@@ -138,12 +204,13 @@
     video: '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M10 9l5 3-5 3z"/>',
     app: '<rect x="4" y="4" width="16" height="16" rx="3"/><path d="M9 9h6v6H9z"/>',
     dots: '<circle cx="5" cy="12" r="1.2"/><circle cx="12" cy="12" r="1.2"/><circle cx="19" cy="12" r="1.2"/>',
+    info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.01"/>',
   };
   const svg = (name) => `<svg class="i" viewBox="0 0 24 24">${ICONS[name] || ''}</svg>`;
 
   function fmtBytes(n) {
     if (n == null) return '—';
-    const units = ['B', 'KB', 'MB', 'GB', 'TB'];
+    const units = ['B', 'KiB', 'MiB', 'GiB', 'TiB']; // the engine counts in 1024s
     let i = 0;
     let v = n;
     while (v >= 1024 && i < units.length - 1) { v /= 1024; i++; }
@@ -161,7 +228,7 @@
   }
   function fmtDate(secs) {
     try {
-      return new Date(secs * 1000).toLocaleString('en-GB', { dateStyle: 'short', timeStyle: 'short' });
+      return new Date(secs * 1000).toLocaleString(lang === 'fa' ? 'fa-IR' : 'en-US', { dateStyle: 'short', timeStyle: 'short' });
     } catch (_) {
       return '';
     }
@@ -190,6 +257,7 @@
   const CAT_ICON = { Compressed: 'box', Documents: 'doc', Music: 'music', Video: 'video', Programs: 'app', General: 'file' };
 
   function matches(key, it) {
+    if (key.startsWith('q:')) return it.queueId === Number(key.slice(2));
     if (key === 'all') return true;
     if (key === 'active') return it.status === 'downloading';
     if (key === 'completed') return it.status === 'completed';
@@ -204,9 +272,13 @@
   const sideNodes = [];
   let statusTitleEl = null;
 
+  let queues = [];
+  const queueName = (id) => (queues.find((q) => q.id === id) || { name: '' }).name;
+
   function buildSide() {
     const side = $('side');
     side.innerHTML = '';
+    sideNodes.length = 0;
     const make = (key, labelKey, level, icon) => {
       const b = document.createElement('button');
       b.className = 'node' + (level ? ' lvl1' : '');
@@ -223,10 +295,25 @@
     make('active', 'fActive', 0, 'bolt');
     make('unfinished', 'fUnfinished', 0, 'clock');
     make('completed', 'fCompleted', 0, 'check');
+    const qt = document.createElement('div');
+    qt.className = 'title';
+    qt.textContent = t('tQueues');
+    qt.dataset.qtitle = '1';
+    side.appendChild(qt);
+    queues.forEach((q) => make('q:' + q.id, q.name, 0, 'clock'));
+    if (filter.startsWith('q:') && !queues.some((q) => 'q:' + q.id === filter)) filter = 'all';
+  }
+
+  async function loadQueues() {
+    queues = (await call('get_queues')) || [];
+    buildSide();
+    render();
   }
 
   function updateSide() {
     statusTitleEl.textContent = t('tStatus');
+    const qtEl = $('side').querySelector('[data-qtitle]');
+    if (qtEl) qtEl.textContent = t('tQueues');
     for (const n of sideNodes) {
       setText(n.el.querySelector('.lbl'), t(n.labelKey));
       setText(n.el.querySelector('.cnt'), String(items.filter((it) => matches(n.key, it)).length));
@@ -261,11 +348,12 @@
 
   function actionsHtml(it) {
     const b = (act, icon, key) =>
-      `<button class="icon-btn" data-act="${act}" title="${esc(t(key))}">${svg(icon)}</button>`;
+      `<button class="icon-btn" data-act="${act}" title="${esc(t(key))}" aria-label="${esc(t(key))}">${svg(icon)}</button>`;
     let h = '';
     if ((it.status === 'downloading' && !it.stopping) || it.status === 'queued') h += b('pause', 'pause', 'pause');
     else if (it.status === 'paused' || it.status === 'error') h += b('resume', 'play', 'resume');
     if (it.status === 'completed') h += b('open', 'file', 'openFile');
+    h += b('details', 'info', 'detailsBtn');
     h += b('folder', 'folder', 'openFolder');
     h += b('delete', 'trash', 'delete');
     return h;
@@ -299,7 +387,14 @@
     setText(r.speed, active ? fmtSpeed(it.speed) : '');
     setText(r.eta, active ? fmtEta(it.eta) : '');
 
-    setText(r.stt, it.stopping ? t('st_pausing') : t('st_' + it.status));
+    let stText = it.stopping ? t('st_pausing') : t('st_' + it.status);
+    if (it.status === 'completed') {
+      if (it.integrity === 'mismatch') stText += ' ⚠ ' + t('badHash');
+      else if (it.scan === 'threat') stText += ' ⚠ ' + t('badScan');
+      else if (it.integrity === 'verifying' || it.scan === 'scanning') stText += ' …';
+      else if (it.integrity === 'verified') stText += ' ✓';
+    }
+    setText(r.stt, stText);
     r.stt.className = 'pill stt st-' + it.status;
     const shortErr = it.error ? (it.error.length > 70 ? it.error.slice(0, 70) + '…' : it.error) : '';
     setText(r.sub, shortErr);
@@ -309,6 +404,8 @@
     const sig = `${it.status}|${it.stopping}|${lang}`;
     if (tr._sig !== sig) { r.act.innerHTML = actionsHtml(it); tr._sig = sig; }
     tr.classList.toggle('sel', selected.has(it.id));
+    tr.setAttribute('aria-selected', String(selected.has(it.id)));
+    tr.tabIndex = 0;
   }
 
   /* ---------------- details panel with the "connections map" ---------------- */
@@ -378,11 +475,41 @@
     $('spark-area').setAttribute('d', `${line} L${W},${H} L0,${H} Z`);
   }
 
+  /* ---------------- search + sorting ---------------- */
+  let query = '';
+  let sortKey = 'added';
+  let sortDir = -1; // -1 = descending (newest first)
+
+  function matchesSearch(it) {
+    if (!query) return true;
+    const hay = [it.filename, it.url, it.category, t('cat_' + it.category), it.status, t('st_' + it.status), queueName(it.queueId)]
+      .join(' ').toLowerCase();
+    return query.split(/\s+/).every((w) => hay.includes(w));
+  }
+
+  const pctVal = (it) => (it.status === 'completed' ? 100 : it.total ? (it.downloaded / it.total) * 100 : 0);
+  const etaVal = (it) => (it.eta == null ? Number.MAX_SAFE_INTEGER : it.eta);
+  const SORTERS = {
+    added: (a, b) => a.added - b.added,
+    name: (a, b) => a.filename.localeCompare(b.filename, lang),
+    size: (a, b) => (a.total || 0) - (b.total || 0),
+    downloaded: (a, b) => a.downloaded - b.downloaded,
+    progress: (a, b) => pctVal(a) - pctVal(b),
+    speed: (a, b) => (a.speed || 0) - (b.speed || 0),
+    eta: (a, b) => etaVal(a) - etaVal(b),
+    status: (a, b) => a.status.localeCompare(b.status),
+    completed: (a, b) => (a.completedAt || 0) - (b.completedAt || 0),
+  };
+  function sortItems(list) {
+    const f = SORTERS[sortKey] || SORTERS.added;
+    return list.slice().sort((a, b) => sortDir * f(a, b) || b.id - a.id);
+  }
+
   function render() {
     const ids = new Set(items.map((i) => i.id));
     for (const id of [...selected]) if (!ids.has(id)) selected.delete(id);
 
-    const list = items.filter((it) => matches(filter, it)).reverse(); // newest first
+    const list = sortItems(items.filter((it) => matches(filter, it) && matchesSearch(it)));
     const tbody = $('rows');
     const seen = new Set();
     let prev = null;
@@ -419,6 +546,7 @@
     $('btn-resume-all').disabled = !has(items, 'paused', 'error');
     $('btn-pause-all').disabled = !has(items, 'downloading', 'queued');
     $('btn-clear').disabled = !has(items, 'completed');
+    $('btn-details').disabled = sel.length !== 1;
   }
 
   /* ------------------------------------------------------------------ */
@@ -438,6 +566,7 @@
     else if (kind === 'resume') await call('resume_download', { id });
     else if (kind === 'open') await call('open_file', { id });
     else if (kind === 'folder') await call('open_folder', { id });
+    else if (kind === 'details') await call('open_details', { id });
     else if (kind === 'delete') askDelete([id]);
   }
 
@@ -462,7 +591,7 @@
     if (!tr || e.target.closest('button')) return;
     const id = Number(tr.dataset.id);
     const it = items.find((i) => i.id === id);
-    if (it && it.status === 'completed') rowAction('open', id);
+    if (it) rowAction(it.status === 'completed' ? 'open' : 'details', id);
   });
 
   $('btn-resume').addEventListener('click', async () => {
@@ -475,6 +604,34 @@
   $('btn-resume-all').addEventListener('click', () => call('resume_all'));
   $('btn-pause-all').addEventListener('click', () => call('pause_all'));
   $('btn-clear').addEventListener('click', () => call('clear_completed'));
+
+  // Keyboard use of the list: arrows move, Space toggles, Enter opens, Ctrl+A selects all.
+  $('rows').addEventListener('keydown', (e) => {
+    const tr = e.target.closest('tr');
+    if (!tr || e.target.closest('button')) return;
+    const id = Number(tr.dataset.id);
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+      e.preventDefault();
+      const next = e.key === 'ArrowDown' ? tr.nextElementSibling : tr.previousElementSibling;
+      if (next) {
+        selected = new Set([Number(next.dataset.id)]);
+        render();
+        next.focus();
+      }
+    } else if (e.key === ' ') {
+      e.preventDefault();
+      if (selected.has(id)) selected.delete(id); else selected.add(id);
+      render();
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      const it = items.find((i) => i.id === id);
+      if (it) rowAction(it.status === 'completed' ? 'open' : 'details', id);
+    } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'a') {
+      e.preventDefault();
+      selected = new Set([...rowEls.keys()]);
+      render();
+    }
+  });
 
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Delete' && !document.querySelector('dialog[open]') && selected.size) {
@@ -546,23 +703,42 @@
   });
 
   // ----- settings -----
+  function syncProxyBox() { $('proxy-manual').hidden = $('set-proxy-mode').value !== 'manual'; }
+  $('set-proxy-mode').addEventListener('change', syncProxyBox);
+  $('forget-hosts').addEventListener('click', async () => {
+    if ((await call('clear_host_limits')) !== undefined) toast(t('hostsCleared'));
+  });
   const dlgSet = $('dlg-settings');
   $('btn-settings').addEventListener('click', async () => {
     const s = await call('get_settings');
     if (!s) return;
     $('set-dir').value = s.downloadDir;
     setText($('last-dir'), s.lastDir || '—');
-    $('set-conn').value = s.connections;
+    const connValue = String(s.connections);
+    if (![...$('set-conn').options].some((o) => o.value === connValue)) {
+      const o = document.createElement('option');
+      o.value = connValue;
+      o.textContent = connValue;
+      $('set-conn').appendChild(o);
+    }
+    $('set-conn').value = connValue;
     $('set-conc').value = s.maxConcurrent;
     $('set-limit').value = s.speedLimitKbps;
     $('set-retries').value = s.retries;
     $('set-cat').checked = s.categorize;
     $('set-confirm').checked = s.confirmDownloads;
     $('set-tray').checked = s.closeToTray;
-    $('set-sched').checked = s.scheduleEnabled;
-    $('set-sstart').value = s.scheduleStart || '';
-    $('set-sstop').value = s.scheduleStop || '';
-    $('set-after').value = s.afterFinish || 'none';
+    $('set-scan-path').value = s.scannerPath || '';
+    $('set-scan-args').value = s.scannerArgs || '{file}';
+    $('set-scan-codes').value = s.scannerThreatCodes || '1,2';
+    $('set-http').value = s.httpMode || 'http1';
+    $('set-rules').value = s.limitRules || '';
+    $('set-proxy-mode').value = s.proxyMode || 'system';
+    $('set-proxy-url').value = s.proxyUrl || '';
+    $('set-proxy-user').value = s.proxyUser || '';
+    $('set-proxy-pass').value = '';
+    $('set-proxy-bypass').value = s.proxyBypass || '';
+    syncProxyBox();
     $('set-lang').value = lang;
     const info = await call('get_integration');
     if (info) {
@@ -586,17 +762,23 @@
   $('set-ok').addEventListener('click', async () => {
     const settings = {
       downloadDir: $('set-dir').value.trim(),
-      connections: num('set-conn', 1, 64, 8),
+      connections: num('set-conn', 0, 64, 0),
       maxConcurrent: num('set-conc', 1, 16, 3),
       speedLimitKbps: num('set-limit', 0, 100000000, 0),
       retries: num('set-retries', 0, 50, 8),
       categorize: $('set-cat').checked,
       confirmDownloads: $('set-confirm').checked,
       closeToTray: $('set-tray').checked,
-      scheduleEnabled: $('set-sched').checked,
-      scheduleStart: $('set-sstart').value || '',
-      scheduleStop: $('set-sstop').value || '',
-      afterFinish: $('set-after').value,
+      scannerPath: $('set-scan-path').value.trim(),
+      scannerArgs: $('set-scan-args').value.trim() || '{file}',
+      scannerThreatCodes: $('set-scan-codes').value.trim() || '1,2',
+      httpMode: $('set-http').value,
+      limitRules: $('set-rules').value,
+      proxyMode: $('set-proxy-mode').value,
+      proxyUrl: $('set-proxy-url').value.trim(),
+      proxyUser: $('set-proxy-user').value.trim(),
+      proxyPassword: $('set-proxy-pass').value,
+      proxyBypass: $('set-proxy-bypass').value.trim(),
     };
     try {
       await invoke('save_settings', { settings });
@@ -628,11 +810,11 @@
   // ----- delete -----
   const dlgDel = $('dlg-delete');
   let pendingDelete = [];
-  function askDelete(ids) {
+  function askDelete(ids, withFile = false) {
     if (!ids.length) return;
     pendingDelete = ids;
     $('del-text').textContent = ids.length === 1 ? t('delQuestion') : `${ids.length} ${t('delQuestionN')}`;
-    $('del-file').checked = false;
+    $('del-file').checked = withFile;
     dlgDel.showModal();
   }
   $('del-cancel').addEventListener('click', () => dlgDel.close());
@@ -653,6 +835,8 @@
     document.documentElement.lang = lang;
     document.documentElement.dir = lang === 'fa' ? 'rtl' : 'ltr';
     document.querySelectorAll('[data-i18n]').forEach((el) => { el.textContent = t(el.dataset.i18n); });
+    document.querySelectorAll('[data-i18n-placeholder]').forEach((el) => { el.placeholder = t(el.dataset.i18nPlaceholder); });
+    document.querySelectorAll('[data-i18n-aria]').forEach((el) => { el.setAttribute('aria-label', t(el.dataset.i18nAria)); });
     for (const tr of rowEls.values()) tr._sig = null; // rebuild row tooltips
     render();
   }
@@ -660,8 +844,262 @@
   /* ------------------------------------------------------------------ */
   /* start                                                               */
   /* ------------------------------------------------------------------ */
+  /* ---------------- search, sort, details, context menu ---------------- */
+  $('search').addEventListener('input', (e) => { query = e.target.value.trim().toLowerCase(); render(); });
+  $('sort-key').addEventListener('change', (e) => { sortKey = e.target.value; render(); });
+  $('sort-dir').addEventListener('click', () => {
+    sortDir = -sortDir;
+    $('sort-dir').innerHTML = sortDir < 0 ? '&darr;' : '&uarr;';
+    render();
+  });
+  $('btn-details').addEventListener('click', () => {
+    const ids = selectedIds();
+    if (ids.length === 1) rowAction('details', ids[0]);
+  });
+
+  const ctx = $('ctx');
+  function hideCtx() { ctx.hidden = true; }
+
+  async function ctxAction(action, it) {
+    hideCtx();
+    if (action === 'pause') await call('pause_download', { id: it.id });
+    else if (action === 'resume') await call('resume_download', { id: it.id });
+    else if (action === 'restart') await call('restart_download', { id: it.id });
+    else if (action === 'open') await call('open_file', { id: it.id });
+    else if (action === 'folder') await call('open_folder', { id: it.id });
+    else if (action === 'details') await call('open_details', { id: it.id });
+    else if (action === 'props') openProps(it);
+    else if (action === 'verify') { if ((await call('verify_download', { id: it.id, expected: null })) !== undefined) toast(t('verifyStarted')); }
+    else if (action === 'rescan') { if ((await call('rescan_download', { id: it.id })) !== undefined) toast(t('verifyStarted')); }
+    else if (action === 'delete') askDelete([it.id]);
+    else if (action === 'deleteFile') askDelete([it.id], true);
+    else if (action === 'copyUrl' || action === 'copyPath') {
+      try {
+        await navigator.clipboard.writeText(action === 'copyUrl' ? it.url : it.savePath);
+        toast(t('copied'));
+      } catch (_) { /* clipboard unavailable */ }
+    }
+  }
+
+  function showCtx(x, y, it) {
+    const st = it.status;
+    const entries = [];
+    if ((st === 'downloading' && !it.stopping) || st === 'queued') entries.push(['pause', 'pause']);
+    if (st === 'paused') entries.push(['resume', 'resume']);
+    if (st === 'error') entries.push(['retry', 'resume']);
+    if (st !== 'downloading') entries.push(['restart', 'restart']);
+    if (st === 'completed') entries.push(['openFile', 'open'], ['verifyHash', 'verify'], ['scanAgain', 'rescan']);
+    entries.push(['openFolder', 'folder'], ['copyUrl', 'copyUrl'], ['copyPath', 'copyPath'], ['detailsBtn', 'details'], ['properties', 'props']);
+    entries.push(null, ['removeFromList', 'delete']);
+    if (st === 'completed') entries.push(['deleteFile', 'deleteFile', true]);
+
+    ctx.innerHTML = '';
+    for (const e of entries) {
+      if (!e) {
+        const hr = document.createElement('hr');
+        ctx.appendChild(hr);
+        continue;
+      }
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.setAttribute('role', 'menuitem');
+      b.textContent = t(e[0]);
+      if (e[2]) b.className = 'danger';
+      b.addEventListener('click', () => ctxAction(e[1], it));
+      ctx.appendChild(b);
+    }
+    ctx.hidden = false;
+    const r = ctx.getBoundingClientRect();
+    ctx.style.left = Math.max(4, Math.min(x, window.innerWidth - r.width - 4)) + 'px';
+    ctx.style.top = Math.max(4, Math.min(y, window.innerHeight - r.height - 4)) + 'px';
+    const first = ctx.querySelector('button');
+    if (first) first.focus();
+  }
+
+  $('rows').addEventListener('contextmenu', (e) => {
+    const tr = e.target.closest('tr');
+    if (!tr) return;
+    e.preventDefault();
+    const id = Number(tr.dataset.id);
+    const it = items.find((i) => i.id === id);
+    if (!it) return;
+    if (!selected.has(id)) selected = new Set([id]);
+    render();
+    showCtx(e.clientX, e.clientY, it);
+  });
+  document.addEventListener('click', (e) => { if (!ctx.contains(e.target)) hideCtx(); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') hideCtx(); });
+  window.addEventListener('blur', hideCtx);
+
+
+  /* ---------------- queues dialog ---------------- */
+  const dlgQ = $('dlg-queues');
+  let qSel = 0;
+  const qErr = (msg) => { const b = $('q-error'); b.textContent = msg || ''; b.hidden = !msg; };
+
+  function renderQList() {
+    const ul = $('q-list');
+    ul.innerHTML = '';
+    for (const q of queues) {
+      const li = document.createElement('li');
+      li.tabIndex = 0;
+      li.setAttribute('role', 'option');
+      li.setAttribute('aria-selected', String(q.id === qSel));
+      if (!q.enabled) li.classList.add('off');
+      const n = items.filter((i) => i.queueId === q.id).length;
+      li.innerHTML = '<span></span><span class="num"></span>';
+      li.children[0].textContent = q.name;
+      li.children[1].textContent = String(n);
+      const pick = () => { qSel = q.id; fillQForm(q); renderQList(); };
+      li.addEventListener('click', pick);
+      li.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pick(); } });
+      ul.appendChild(li);
+    }
+  }
+  function fillQForm(q) {
+    qErr('');
+    $('q-name').value = q.name;
+    $('q-enabled').checked = q.enabled;
+    $('q-priority').value = q.priority;
+    $('q-max').value = q.maxConcurrent;
+    $('q-limit').value = q.speedLimitKbps;
+    $('q-sched').checked = q.scheduleEnabled;
+    $('q-start').value = q.scheduleStart || '';
+    $('q-stop').value = q.scheduleStop || '';
+    $('q-after').value = q.afterFinish || 'none';
+    $('q-onlyok').checked = q.onlyIfAllSucceeded;
+    $('q-delete').disabled = q.id === 1 || q.id === 0;
+    $('q-startnow').disabled = q.id === 0;
+    $('q-stopnow').disabled = q.id === 0;
+  }
+  const intIn = (id, lo, hi, d) => {
+    const v = parseInt($(id).value, 10);
+    return Number.isFinite(v) ? Math.min(hi, Math.max(lo, v)) : d;
+  };
+  function readQForm() {
+    return {
+      id: qSel,
+      name: $('q-name').value.trim(),
+      enabled: $('q-enabled').checked,
+      priority: intIn('q-priority', -100, 100, 0),
+      maxConcurrent: intIn('q-max', 1, 16, 3),
+      speedLimitKbps: intIn('q-limit', 0, 100000000, 0),
+      scheduleEnabled: $('q-sched').checked,
+      scheduleStart: $('q-start').value || '',
+      scheduleStop: $('q-stop').value || '',
+      afterFinish: $('q-after').value,
+      onlyIfAllSucceeded: $('q-onlyok').checked,
+    };
+  }
+  async function openQueues() {
+    await loadQueues();
+    qSel = (queues[0] || {}).id || 0;
+    if (queues[0]) fillQForm(queues[0]);
+    renderQList();
+    dlgQ.showModal();
+  }
+  $('btn-queues').addEventListener('click', openQueues);
+  $('open-queues').addEventListener('click', () => { dlgSet.close(); openQueues(); });
+  $('q-close').addEventListener('click', () => dlgQ.close());
+  $('q-new').addEventListener('click', () => {
+    qSel = 0;
+    fillQForm({ id: 0, name: t('qNewName'), enabled: true, priority: 0, maxConcurrent: 3, speedLimitKbps: 0,
+      scheduleEnabled: false, scheduleStart: '', scheduleStop: '', afterFinish: 'none', onlyIfAllSucceeded: true });
+    renderQList();
+    $('q-name').focus();
+  });
+  $('q-save').addEventListener('click', async () => {
+    try {
+      const id = await invoke('save_queue', { queue: readQForm() });
+      qSel = id;
+      await loadQueues();
+      const q = queues.find((x) => x.id === id);
+      if (q) fillQForm(q);
+      renderQList();
+      toast(t('qSaved'));
+    } catch (e) { qErr(String(e)); }
+  });
+  $('q-delete').addEventListener('click', async () => {
+    if (qSel === 1) { qErr(t('qMainNoDelete')); return; }
+    try {
+      await invoke('delete_queue', { id: qSel });
+      await loadQueues();
+      qSel = queues[0].id;
+      fillQForm(queues[0]);
+      renderQList();
+    } catch (e) { qErr(String(e)); }
+  });
+  $('q-startnow').addEventListener('click', async () => { if (qSel) { await call('start_queue', { id: qSel }); await loadQueues(); renderQList(); } });
+  $('q-stopnow').addEventListener('click', async () => { if (qSel) { await call('stop_queue', { id: qSel }); await loadQueues(); renderQList(); } });
+
+  /* ---------------- properties dialog ---------------- */
+  const dlgPr = $('dlg-props');
+  let prItem = null;
+  function openProps(it) {
+    prItem = it;
+    $('pr-error').hidden = true;
+    $('pr-name').value = it.filename;
+    $('pr-url').value = it.url;
+    $('pr-path').value = it.savePath;
+    const sel = $('pr-queue');
+    sel.innerHTML = '';
+    for (const q of queues) {
+      const o = document.createElement('option');
+      o.value = String(q.id);
+      o.textContent = q.name;
+      sel.appendChild(o);
+    }
+    sel.value = String(it.queueId);
+    const running = it.status === 'downloading';
+    sel.disabled = running;
+    $('pr-note').hidden = !running;
+    setText($('pr-note'), running ? t('prRunning') : '');
+    $('pr-done').value = it.onComplete || 'none';
+    $('pr-priority').value = String(it.priority || 0);
+    $('pr-limit').value = it.speedLimitKbps || 0;
+    dlgPr.showModal();
+  }
+  $('pr-cancel').addEventListener('click', () => dlgPr.close());
+  $('pr-ok').addEventListener('click', async () => {
+    if (!prItem) return;
+    const id = prItem.id;
+    try {
+      const q = Number($('pr-queue').value);
+      if (q !== prItem.queueId) await invoke('set_item_queue', { id, queueId: q });
+      await invoke('set_item_priority', { id, priority: Number($('pr-priority').value) });
+      await invoke('set_item_speed_limit', { id, kbps: intIn('pr-limit', 0, 100000000, 0) });
+      await invoke('set_on_complete', { id, action: $('pr-done').value });
+      dlgPr.close();
+    } catch (e) {
+      const b = $('pr-error');
+      b.textContent = String(e);
+      b.hidden = false;
+    }
+  });
+
+  // Screen-reader announcements for results that matter.
+  const lastState = new Map();
+  function announce(msg) {
+    const el = $('live');
+    el.textContent = '';
+    setTimeout(() => { el.textContent = msg; }, 50);
+  }
+  function watchStates() {
+    for (const it of items) {
+      const key = `${it.status}|${it.integrity || ''}|${it.scan || ''}`;
+      const prev = lastState.get(it.id);
+      lastState.set(it.id, key);
+      if (prev === undefined || prev === key) continue;
+      if (it.integrity === 'mismatch') announce(`${t('aBadHash')}: ${it.filename}`);
+      else if (it.scan === 'threat') announce(`${t('aThreat')}: ${it.filename}`);
+      else if (prev.split('|')[0] !== it.status && it.status === 'completed') announce(`${t('aDone')}: ${it.filename}`);
+      else if (prev.split('|')[0] !== it.status && it.status === 'error') announce(`${t('aError')}: ${it.filename}`);
+    }
+  }
+
   function onDownloads(list) {
     items = list || [];
+    watchStates();
     speedHist.push(items.filter((i) => i.status === 'downloading').reduce((s, i) => s + (i.speed || 0), 0));
     if (speedHist.length > 120) speedHist.shift();
     render();
@@ -680,6 +1118,8 @@
       setText($('banner-text'), t('powerBanner'));
       $('banner').hidden = false;
     });
+    queues = (await call('get_queues')) || [];
+    buildSide();
     items = (await call('list_downloads')) || [];
     render();
   }

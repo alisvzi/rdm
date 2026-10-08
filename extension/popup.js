@@ -11,6 +11,12 @@
     api.runtime.openOptionsPage();
   });
 
+  $('all-links').addEventListener('click', async () => {
+    const [t] = await api.tabs.query({ active: true, currentWindow: true });
+    if (t) api.tabs.create({ url: api.runtime.getURL('links.html') + '?tab=' + t.id });
+    window.close();
+  });
+
   // connection status
   const st = $('status');
   try {
@@ -22,6 +28,14 @@
     st.textContent = e.message === 'RDM_NOT_RUNNING'
       ? 'برنامه‌ی RDM باز نیست'
       : 'کد اتصال درست نیست';
+    if (e.message === 'RDM_NOT_RUNNING') {
+      // The Native Messaging host (if installed) can still reach RDM.
+      try {
+        await nmCall('ping');
+        st.className = 'status ok';
+        st.textContent = 'متصل (Native Messaging)';
+      } catch (_) { /* host not installed */ }
+    }
   }
 
   // detected media
@@ -54,7 +68,7 @@
     name.title = m.url;
     const meta = document.createElement('div');
     meta.className = 'meta';
-    meta.textContent = [m.type.split(';')[0], fmt(m.size)].filter(Boolean).join(' · ');
+    meta.textContent = [m.type.includes('mpegurl') ? 'HLS' : m.type.split(';')[0], fmt(m.size)].filter(Boolean).join(' · ');
     info.append(name, meta);
 
     const btn = document.createElement('button');

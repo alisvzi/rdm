@@ -3,7 +3,10 @@
 mod server;
 
 use chrono::{Datelike, Local, Timelike};
-use rdm_core::manager::{ItemView, Manager as Downloads, Prepared, Settings, Status};
+use rdm_core::manager::{
+    DownloadDetails, ItemView, Manager as Downloads, Prepared, Settings, Status,
+};
+use rdm_core::queues::Queue;
 use std::collections::HashMap;
 use std::path::Path;
 use std::process::Command;
@@ -170,6 +173,153 @@ async fn save_settings(app: AppHandle, dl: State<'_, Downloads>, settings: Setti
     Ok(())
 }
 
+/// Opens (or focuses) the live details window of one download.
+#[tauri::command]
+async fn open_details(app: AppHandle, id: u64) -> Res<()> {
+    let label = format!("details-{id}");
+    if let Some(w) = app.get_webview_window(&label) {
+        let _ = w.show();
+        let _ = w.unminimize();
+        let _ = w.set_focus();
+        return Ok(());
+    }
+    tauri::WebviewWindowBuilder::new(&app, label, tauri::WebviewUrl::App("details.html".into()))
+        .title("RDM")
+        .inner_size(920.0, 700.0)
+        .min_inner_size(740.0, 540.0)
+        .center()
+        .theme(Some(tauri::Theme::Dark))
+        .build()
+        .map_err(|e| e.to_string())?;
+    Ok(())
+}
+
+#[tauri::command]
+async fn close_details(app: AppHandle, id: u64) -> Res<()> {
+    if let Some(w) = app.get_webview_window(&format!("details-{id}")) {
+        let _ = w.close();
+    }
+    Ok(())
+}
+
+#[tauri::command]
+async fn get_details(dl: State<'_, Downloads>, id: u64) -> Res<Option<DownloadDetails>> {
+    Ok(dl.details(id))
+}
+
+#[tauri::command]
+async fn set_item_speed_limit(
+    app: AppHandle,
+    dl: State<'_, Downloads>,
+    id: u64,
+    kbps: u64,
+) -> Res<()> {
+    dl.set_speed_limit(id, kbps);
+    notify(&app, &dl);
+    Ok(())
+}
+
+#[tauri::command]
+async fn set_on_complete(
+    app: AppHandle,
+    dl: State<'_, Downloads>,
+    id: u64,
+    action: String,
+) -> Res<()> {
+    dl.set_on_complete(id, &action).map_err(err)?;
+    notify(&app, &dl);
+    Ok(())
+}
+
+#[tauri::command]
+async fn set_item_priority(
+    app: AppHandle,
+    dl: State<'_, Downloads>,
+    id: u64,
+    priority: i32,
+) -> Res<()> {
+    dl.set_priority(id, priority);
+    notify(&app, &dl);
+    Ok(())
+}
+
+#[tauri::command]
+async fn get_queues(dl: State<'_, Downloads>) -> Res<Vec<Queue>> {
+    Ok(dl.queues())
+}
+
+#[tauri::command]
+async fn save_queue(app: AppHandle, dl: State<'_, Downloads>, queue: Queue) -> Res<u32> {
+    let id = dl.save_queue(queue).map_err(err)?;
+    notify(&app, &dl);
+    Ok(id)
+}
+
+#[tauri::command]
+async fn delete_queue(app: AppHandle, dl: State<'_, Downloads>, id: u32) -> Res<()> {
+    dl.delete_queue(id).map_err(err)?;
+    notify(&app, &dl);
+    Ok(())
+}
+
+#[tauri::command]
+async fn set_item_queue(
+    app: AppHandle,
+    dl: State<'_, Downloads>,
+    id: u64,
+    queue_id: u32,
+) -> Res<()> {
+    dl.set_item_queue(id, queue_id).map_err(err)?;
+    notify(&app, &dl);
+    Ok(())
+}
+
+#[tauri::command]
+async fn start_queue(app: AppHandle, dl: State<'_, Downloads>, id: u32) -> Res<()> {
+    dl.start_queue(id);
+    notify(&app, &dl);
+    Ok(())
+}
+
+#[tauri::command]
+async fn stop_queue(app: AppHandle, dl: State<'_, Downloads>, id: u32) -> Res<()> {
+    dl.stop_queue(id);
+    notify(&app, &dl);
+    Ok(())
+}
+
+#[tauri::command]
+async fn clear_host_limits(dl: State<'_, Downloads>) -> Res<()> {
+    dl.clear_host_limits();
+    Ok(())
+}
+
+#[tauri::command]
+async fn verify_download(
+    app: AppHandle,
+    dl: State<'_, Downloads>,
+    id: u64,
+    expected: Option<String>,
+) -> Res<()> {
+    dl.verify(id, expected.as_deref()).map_err(err)?;
+    notify(&app, &dl);
+    Ok(())
+}
+
+#[tauri::command]
+async fn rescan_download(app: AppHandle, dl: State<'_, Downloads>, id: u64) -> Res<()> {
+    dl.rescan(id).map_err(err)?;
+    notify(&app, &dl);
+    Ok(())
+}
+
+#[tauri::command]
+async fn restart_download(app: AppHandle, dl: State<'_, Downloads>, id: u64) -> Res<()> {
+    dl.restart(id);
+    notify(&app, &dl);
+    Ok(())
+}
+
 #[tauri::command]
 async fn get_pending(store: State<'_, PendingStore>, id: u64) -> Res<Prepared> {
     store
@@ -245,7 +395,9 @@ async fn cancel_shutdown() -> Res<()> {
 
 #[tauri::command]
 async fn open_file(dl: State<'_, Downloads>, id: u64) -> Res<()> {
-    let p = dl.path_of(id).ok_or_else(|| "download not found".to_string())?;
+    let p = dl
+        .path_of(id)
+        .ok_or_else(|| "download not found".to_string())?;
     let path = Path::new(&p);
     if !path.exists() {
         return Err("file not found".into());
@@ -255,7 +407,9 @@ async fn open_file(dl: State<'_, Downloads>, id: u64) -> Res<()> {
 
 #[tauri::command]
 async fn open_folder(dl: State<'_, Downloads>, id: u64) -> Res<()> {
-    let p = dl.path_of(id).ok_or_else(|| "download not found".to_string())?;
+    let p = dl
+        .path_of(id)
+        .ok_or_else(|| "download not found".to_string())?;
     reveal(Path::new(&p))
 }
 
@@ -270,7 +424,11 @@ fn open_default(path: &Path) -> Res<()> {
 
 #[cfg(not(windows))]
 fn open_default(path: &Path) -> Res<()> {
-    let opener = if cfg!(target_os = "macos") { "open" } else { "xdg-open" };
+    let opener = if cfg!(target_os = "macos") {
+        "open"
+    } else {
+        "xdg-open"
+    };
     Command::new(opener)
         .arg(path)
         .spawn()
@@ -294,7 +452,11 @@ fn reveal(path: &Path) -> Res<()> {
 #[cfg(not(windows))]
 fn reveal(path: &Path) -> Res<()> {
     let dir = path.parent().unwrap_or(path);
-    let opener = if cfg!(target_os = "macos") { "open" } else { "xdg-open" };
+    let opener = if cfg!(target_os = "macos") {
+        "open"
+    } else {
+        "xdg-open"
+    };
     Command::new(opener)
         .arg(dir)
         .spawn()
@@ -334,9 +496,22 @@ fn power_action(app: &AppHandle, action: &str) {
     }
 }
 
+/// What to do when a single download completes (chosen in its details window).
+fn run_completion(app: &AppHandle, action: &str, path: &str) {
+    match action {
+        "open_file" => {
+            let _ = open_default(Path::new(path));
+        }
+        "open_folder" => {
+            let _ = reveal(Path::new(path));
+        }
+        "shutdown" | "hibernate" => power_action(app, action),
+        _ => {}
+    }
+}
+
 #[derive(Default)]
-struct SchedState {
-    last_minute: Option<(u32, u32, u32)>,
+struct QueueSched {
     /// A scheduled start found work to do and nothing else has happened since.
     armed: bool,
     was_busy: bool,
@@ -426,58 +601,107 @@ fn main() {
             }
             tray.build(app)?;
 
+            // Details windows get their own, faster, targeted stream of live state.
+            let details_manager = manager.clone();
+            let details_handle = app.handle().clone();
+
             // Ticker: live progress for the UI + the scheduler.
             let handle = app.handle().clone();
             tauri::async_runtime::spawn(async move {
                 let mut was_active = false;
-                let mut sched = SchedState::default();
+                let mut qsched: HashMap<u32, QueueSched> = HashMap::new();
+                let mut last_minute: Option<(u32, u32, u32)> = None;
+                let mut prev_status: HashMap<u64, Status> = HashMap::new();
+                let mut waiting: std::collections::HashSet<u64> = Default::default();
                 loop {
                     tokio::time::sleep(Duration::from_millis(500)).await;
                     let snap = manager.snapshot();
+                    // Per-download completion actions (only for downloads that really completed).
+                    for v in &snap {
+                        let was = prev_status.insert(v.item.id, v.item.status);
+                        if was == Some(Status::Downloading)
+                            && v.item.status == Status::Completed
+                            && !v.item.on_complete.is_empty()
+                        {
+                            waiting.insert(v.item.id);
+                        }
+                    }
+                    // Completion actions wait for the checksum check and the virus scan, and are
+                    // skipped for a file that failed either one.
+                    for v in &snap {
+                        let id = v.item.id;
+                        if waiting.contains(&id) && !manager.is_post_processing(id) {
+                            waiting.remove(&id);
+                            if manager.is_safe_to_open(id) {
+                                run_completion(&handle, &v.item.on_complete, &v.item.save_path);
+                            }
+                        }
+                    }
                     let active = snap.iter().any(|v| v.item.status == Status::Downloading);
                     if active || was_active {
                         let _ = handle.emit("downloads", snap.clone());
                     }
                     was_active = active;
 
-                    // --- scheduler ---
+                    // --- scheduler: every queue has its own start/stop time and finish action ---
                     let now = Local::now();
+                    let queues = manager.queues();
                     let key = (now.ordinal(), now.hour(), now.minute());
-                    if sched.last_minute != Some(key) {
-                        sched.last_minute = Some(key);
-                        let s = manager.settings();
-                        if s.schedule_enabled {
-                            let hm = format!("{:02}:{:02}", now.hour(), now.minute());
-                            if !s.schedule_start.is_empty() && s.schedule_start == hm {
+                    if last_minute != Some(key) {
+                        last_minute = Some(key);
+                        // The speed schedule switches limits at minute boundaries.
+                        manager.apply_speed_schedule(now.hour() * 60 + now.minute());
+                        let hm = format!("{:02}:{:02}", now.hour(), now.minute());
+                        for q in queues.iter().filter(|q| q.schedule_enabled) {
+                            if !q.schedule_start.is_empty() && q.schedule_start == hm {
                                 let has_work = snap.iter().any(|v| {
-                                    matches!(
-                                        v.item.status,
-                                        Status::Paused | Status::Error | Status::Queued
-                                    )
+                                    v.item.queue_id == q.id
+                                        && matches!(
+                                            v.item.status,
+                                            Status::Paused | Status::Error | Status::Queued
+                                        )
                                 });
-                                manager.resume_all();
-                                sched.armed = has_work;
+                                manager.start_queue(q.id);
+                                qsched.entry(q.id).or_default().armed = has_work;
                                 let _ = handle.emit("downloads", manager.snapshot());
                             }
-                            if !s.schedule_stop.is_empty() && s.schedule_stop == hm {
-                                manager.pause_all();
-                                sched.armed = false;
+                            if !q.schedule_stop.is_empty() && q.schedule_stop == hm {
+                                manager.stop_queue(q.id);
+                                qsched.entry(q.id).or_default().armed = false;
                                 let _ = handle.emit("downloads", manager.snapshot());
                             }
                         }
                     }
-
-                    let busy = snap
-                        .iter()
-                        .any(|v| matches!(v.item.status, Status::Downloading | Status::Queued));
-                    if sched.was_busy && !busy && sched.armed {
-                        sched.armed = false;
-                        let s = manager.settings();
-                        if s.schedule_enabled && s.after_finish != "none" {
-                            power_action(&handle, &s.after_finish);
+                    // A queue that finished a scheduled run may shut the computer down, but by
+                    // default only when nothing failed (no errors, no checksum or scan problems).
+                    for q in &queues {
+                        let (busy, failed) = manager.queue_state(q.id);
+                        let st = qsched.entry(q.id).or_default();
+                        if st.was_busy && !busy && st.armed {
+                            st.armed = false;
+                            let ok = !q.only_if_all_succeeded || failed == 0;
+                            if q.schedule_enabled && q.after_finish != "none" && ok {
+                                power_action(&handle, &q.after_finish);
+                            }
+                        }
+                        st.was_busy = busy;
+                    }
+                }
+            });
+            tauri::async_runtime::spawn(async move {
+                loop {
+                    tokio::time::sleep(Duration::from_millis(250)).await;
+                    for (label, _) in details_handle.webview_windows() {
+                        let Some(id) = label
+                            .strip_prefix("details-")
+                            .and_then(|s| s.parse::<u64>().ok())
+                        else {
+                            continue;
+                        };
+                        if let Some(d) = details_manager.details(id) {
+                            let _ = details_handle.emit_to(label.as_str(), "details", d);
                         }
                     }
-                    sched.was_busy = busy;
                 }
             });
             Ok(())
@@ -494,6 +718,22 @@ fn main() {
             get_settings,
             save_settings,
             get_integration,
+            open_details,
+            close_details,
+            get_details,
+            set_item_speed_limit,
+            set_on_complete,
+            restart_download,
+            verify_download,
+            get_queues,
+            set_item_priority,
+            save_queue,
+            delete_queue,
+            set_item_queue,
+            start_queue,
+            stop_queue,
+            clear_host_limits,
+            rescan_download,
             get_pending,
             confirm_pending,
             cancel_pending,

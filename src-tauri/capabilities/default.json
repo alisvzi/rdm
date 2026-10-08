@@ -1,6 +1,6 @@
 {
   "identifier": "default",
-  "description": "Permissions for the main window and the confirmation windows",
-  "windows": ["main", "confirm-*"],
+  "description": "Permissions for the main window, the confirmation windows and the details windows",
+  "windows": ["main", "confirm-*", "details-*"],
   "permissions": ["core:default", "dialog:default"]
 }

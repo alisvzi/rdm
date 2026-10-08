@@ -1,0 +1,15 @@
+body { width: auto; max-width: 900px; margin: 0 auto; }
+.bar { display: flex; gap: 8px; margin: 8px 0; align-items: center; flex-wrap: wrap; }
+.bar input[type="text"] { flex: 1; min-width: 180px; }
+.bar.end { justify-content: space-between; position: sticky; bottom: 0; padding: 10px 0; background: Canvas; }
+.chips { display: flex; gap: 6px; flex-wrap: wrap; margin: 6px 0; }
+.chips button { background: #8882; color: inherit; border: 1px solid #8884; }
+.chips button[aria-pressed="true"] { background: #2563eb; color: #fff; border-color: transparent; }
+button.ghost { background: #8882; color: inherit; border: 1px solid #8884; }
+ul#list { max-height: none; overflow: visible; }
+ul#list li { align-items: flex-start; }
+ul#list li label { display: flex; gap: 8px; align-items: flex-start; flex: 1; min-width: 0; cursor: pointer; }
+ul#list .name { white-space: normal; word-break: break-all; }
+ul#list .tag { font-size: 11px; opacity: .65; white-space: nowrap; }
+.ltr { direction: ltr; text-align: left; }
+:focus-visible { outline: 2px solid #2563eb; outline-offset: 2px; }
