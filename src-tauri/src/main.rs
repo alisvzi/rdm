@@ -65,7 +65,7 @@ pub fn open_confirm_window(app: &AppHandle, id: u64) {
         tauri::WebviewUrl::App("confirm.html".into()),
     )
     .title("RDM")
-    .inner_size(640.0, 520.0)
+    .inner_size(600.0, 480.0)
     .resizable(false)
     .maximizable(false)
     .minimizable(false)
@@ -207,8 +207,8 @@ pub(crate) fn open_details_window(app: &AppHandle, id: u64) -> Res<()> {
     }
     tauri::WebviewWindowBuilder::new(app, label, tauri::WebviewUrl::App("details.html".into()))
         .title("RDM")
-        .inner_size(920.0, 760.0)
-        .min_inner_size(740.0, 540.0)
+        .inner_size(700.0, 600.0)
+        .min_inner_size(600.0, 460.0)
         .center()
         .theme(Some(tauri::Theme::Dark))
         .build()

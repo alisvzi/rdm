@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "RDM Download Manager",
-  "version": "0.6.1",
+  "version": "0.6.2",
   "description": "هدایت دانلودهای مرورگر به برنامه‌ی RDM و دریافت ویدیو/صوت صفحه",
   "browser_specific_settings": {
     "gecko": {
