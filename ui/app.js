@@ -39,7 +39,7 @@
       setLimit: 'محدودیت سرعت کل (KB/s، صفر = بدون محدودیت)',
       setRetries: 'تعداد تلاش مجدد',
       setCategorize: 'فایل‌ها در زیرپوشه‌ی دسته‌بندی (ویدیو، موسیقی، …) ذخیره شوند',
-      setConfirm: 'قبل از هر دانلود مرورگر، پنجره‌ی تأیید (مثل IDM) نشان داده شود',
+      setConfirm: 'دانلودهای مرورگر همیشه قبل از شروع پنجره‌ی تأیید دارند (قابل خاموش‌کردن نیست)',
       setShowDetails: 'هنگام شروع دانلود، پنجره‌ی جزئیات خودکار باز شود',
       setCloseDetails: 'پنجره‌ی جزئیات بعد از اتمام دانلود خودکار بسته شود',
       setTray: 'با بستن پنجره، برنامه در سینی سیستم بماند (دانلودها ادامه پیدا می‌کنند)',
@@ -120,7 +120,7 @@
       setLimit: 'Total speed limit (KB/s, 0 = unlimited)',
       setRetries: 'Retries per chunk',
       setCategorize: 'Sort files into sub-folders (Video, Music, ...)',
-      setConfirm: 'Show a confirmation window (like IDM) before each browser download',
+      setConfirm: 'Browser downloads always ask for confirmation first (cannot be turned off)',
       setShowDetails: 'Open the details window automatically when a download starts',
       setCloseDetails: 'Close the details window automatically when the download finishes',
       setTray: 'Closing the window keeps RDM running in the system tray (downloads continue)',
@@ -730,7 +730,7 @@
     $('set-limit').value = s.speedLimitKbps;
     $('set-retries').value = s.retries;
     $('set-cat').checked = s.categorize;
-    $('set-confirm').checked = s.confirmDownloads;
+    $('set-confirm').checked = true; // always on: nothing starts without the user's confirmation
     $('set-showdetails').checked = s.showDetailsOnStart !== false;
     $('set-closedetails').checked = !!s.closeDetailsOnDone;
     $('set-tray').checked = s.closeToTray;
@@ -773,7 +773,7 @@
       speedLimitKbps: num('set-limit', 0, 100000000, 0),
       retries: num('set-retries', 0, 50, 8),
       categorize: $('set-cat').checked,
-      confirmDownloads: $('set-confirm').checked,
+      confirmDownloads: true,
       showDetailsOnStart: $('set-showdetails').checked,
       closeDetailsOnDone: $('set-closedetails').checked,
       closeToTray: $('set-tray').checked,

@@ -1110,7 +1110,17 @@ impl Manager {
         let host_caps: HashMap<String, HostCap> =
             read_json(&data_dir.join("hosts.json")).unwrap_or_default();
 
-        let mut items: Vec<Item> = read_json(&data_dir.join("downloads.json")).unwrap_or_default();
+        // An unreadable list is never silently replaced by an empty one: keep a copy first.
+        let items_path = data_dir.join("downloads.json");
+        let mut items: Vec<Item> = match read_json(&items_path) {
+            Some(v) => v,
+            None => {
+                if items_path.exists() {
+                    let _ = std::fs::copy(&items_path, data_dir.join("downloads.json.damaged"));
+                }
+                Vec::new()
+            }
+        };
         for it in items.iter_mut() {
             if let Some(blob) = it.secure_headers.take() {
                 if let Some(h) = secure::unprotect(&blob)
@@ -1697,6 +1707,18 @@ impl Manager {
         self.inner.schedule();
     }
 
+    /// Scheduled start: only opens the queue so downloads the user already put in it
+    /// (status "queued") can run. Paused or failed downloads are never restarted by a timer.
+    pub fn start_queue_scheduled(&self, qid: u32) {
+        for q in self.inner.queues.lock().unwrap().iter_mut() {
+            if q.id == qid {
+                q.enabled = true;
+            }
+        }
+        self.inner.persist_queues();
+        self.inner.schedule();
+    }
+
     /// Pauses every active or waiting download of one queue.
     pub fn stop_queue(&self, qid: u32) {
         let ids: Vec<u64> = self
@@ -1818,6 +1840,12 @@ impl Manager {
             .iter()
             .find(|i| i.id == id)
             .map_or(false, |i| i.integrity != "mismatch" && i.scan != "threat")
+    }
+
+    /// True when a download of exactly this link is already in the list (any status).
+    pub fn has_url(&self, url: &str) -> bool {
+        let u = url.trim();
+        self.inner.items.lock().unwrap().iter().any(|i| i.url == u)
     }
 
     pub fn path_of(&self, id: u64) -> Option<String> {

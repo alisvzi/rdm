@@ -186,7 +186,13 @@ async fn open_details(app: AppHandle, id: u64) -> Res<()> {
 /// Opens the details window by itself when the user starts a download (setting-controlled).
 /// Never used for batch adds or queue starts, so hundreds of windows cannot open at once.
 pub(crate) fn auto_details(app: &AppHandle, dl: &Downloads, id: u64) {
-    if dl.settings().show_details_on_start {
+    // At most 3 details windows open by themselves, so a flood of adds cannot flood the screen.
+    let open = app
+        .webview_windows()
+        .keys()
+        .filter(|k| k.starts_with("details-"))
+        .count();
+    if dl.settings().show_details_on_start && open < 3 {
         let _ = open_details_window(app, id);
     }
 }
@@ -372,9 +378,8 @@ async fn confirm_pending(
     if start {
         auto_details(&app, &dl, new_id);
     }
-    if dont_ask {
-        dl.set_confirm_downloads(false);
-    }
+    // "Don't ask again" no longer exists: downloads from the browser always need a confirmation.
+    let _ = dont_ask;
     store.remove(id);
     close_confirm(&app, id);
     notify(&app, &dl);
@@ -572,6 +577,18 @@ fn main() {
         })
         .setup(|app| {
             let data_dir = app.path().app_data_dir()?;
+            // A crash leaves a trace in crash.log (next to settings.json) so it can be diagnosed.
+            let crash_log = data_dir.join("crash.log");
+            std::panic::set_hook(Box::new(move |info| {
+                let line = format!("{} {}\n", Local::now().format("%Y-%m-%d %H:%M:%S"), info);
+                if let Ok(mut f) = std::fs::OpenOptions::new()
+                    .create(true)
+                    .append(true)
+                    .open(&crash_log)
+                {
+                    let _ = std::io::Write::write_all(&mut f, line.as_bytes());
+                }
+            }));
             let default_dir = app
                 .path()
                 .download_dir()
@@ -675,13 +692,9 @@ fn main() {
                         for q in queues.iter().filter(|q| q.schedule_enabled) {
                             if !q.schedule_start.is_empty() && q.schedule_start == hm {
                                 let has_work = snap.iter().any(|v| {
-                                    v.item.queue_id == q.id
-                                        && matches!(
-                                            v.item.status,
-                                            Status::Paused | Status::Error | Status::Queued
-                                        )
+                                    v.item.queue_id == q.id && v.item.status == Status::Queued
                                 });
-                                manager.start_queue(q.id);
+                                manager.start_queue_scheduled(q.id);
                                 qsched.entry(q.id).or_default().armed = has_work;
                                 let _ = handle.emit("downloads", manager.snapshot());
                             }

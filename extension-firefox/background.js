@@ -14,6 +14,12 @@ api.downloads.onCreated.addListener(async (item) => {
     const cfg = await getCfg();
     if (!cfg.enabled || !cfg.token) return;
     if (item.byExtensionId) return; // started by an extension (maybe us): leave it
+    // Only downloads the user has JUST started are taken over. Old or restored downloads
+    // (the browser re-creates interrupted ones after a restart) stay with the browser.
+    const age = Date.now() - Date.parse(item.startTime || '');
+    if (item.state && item.state !== 'in_progress') return;
+    if (!Number.isFinite(age) || age > 20000 || age < -5000) return;
+    if (item.paused || item.canResume) return;
     const url = item.finalUrl || item.url;
     if (!/^https?:/i.test(url)) return; // blob:, data:, file: cannot be fetched by RDM
     if (cfg.minSizeMB > 0 && item.totalBytes > 0 && item.totalBytes < cfg.minSizeMB * 1048576) return;

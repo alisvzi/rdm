@@ -194,8 +194,10 @@ fn handle(mut req: Request, dl: Downloads, app: AppHandle) {
                     if let Some(u) = b.user_agent.filter(|u| !u.is_empty()) {
                         headers.push(("User-Agent".to_string(), u));
                     }
-                    let wants_confirm =
-                        b.confirm.unwrap_or(false) && dl.settings().confirm_downloads;
+                    // Nothing coming from outside the app (browser extension, native
+                    // messaging) ever starts a download by itself: the user always decides
+                    // in the confirmation popup.
+                    let wants_confirm = true;
 
                     if wants_confirm {
                         // IDM-style: check the link, then let the user decide in a popup.
@@ -273,12 +275,10 @@ fn handle(mut req: Request, dl: Downloads, app: AppHandle) {
                         if let Some(u) = b.user_agent.clone().filter(|u| !u.is_empty()) {
                             headers.push(("User-Agent".to_string(), u));
                         }
-                        match tauri::async_runtime::block_on(dl.add_with(
-                            &item.url,
-                            None,
-                            b.start_now,
-                            headers,
-                        )) {
+                        // Batch links are only added to the list (paused); the user starts them.
+                        match tauri::async_runtime::block_on(
+                            dl.add_with(&item.url, None, false, headers),
+                        ) {
                             Ok(_) => added += 1,
                             Err(e) => {
                                 failed += 1;
