@@ -4,7 +4,8 @@
   "version": "0.6.2",
   "identifier": "com.rdm.downloadmanager",
   "build": {
-    "frontendDist": "../ui"
+    "frontendDist": "../ui",
+    "beforeBuildCommand": "cargo build --release -p rdm-nm"
   },
   "app": {
     "withGlobalTauri": true,
